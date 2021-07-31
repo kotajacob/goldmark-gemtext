@@ -39,7 +39,14 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 
 		case *ast.Heading:
 			if entering {
-				write("# ")
+				switch n.Level {
+				case 1:
+					write("# ")
+				case 2:
+					write("## ")
+				default:
+					write("### ")
+				}
 			} else {
 				write("\n\n")
 			}
