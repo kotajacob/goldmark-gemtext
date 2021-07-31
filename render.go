@@ -243,6 +243,9 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 						write(" ")
 					}
 				}
+				if n.HardLineBreak() {
+					write("\n")
+				}
 			}
 
 		case *ast.String:
