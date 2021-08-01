@@ -32,6 +32,28 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 		}
 	}
 
+	isLinkOnly := func(n ast.Node) bool {
+		var hasLink bool = false
+		var hasText bool = false
+		// check if the paragraph contains ONLY links
+		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+			switch nl := child.(type) {
+			case *ast.Link:
+				hasLink = true
+			case *ast.AutoLink:
+				hasLink = true
+			case *ast.Text:
+				if string(nl.Segment.Value(source)) != "" {
+					hasText = true
+				}
+			}
+		}
+		if hasLink == true && hasText == false {
+			return true
+		}
+		return false
+	}
+
 	return ast.Walk(node, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		switch n := node.(type) {
 		case *ast.Document:
@@ -162,13 +184,21 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			// return ast.WalkSkipChildren, nil
 
 		case *ast.Paragraph:
+			// check if paragraph contains links and no text
 			if !entering {
+				// loop through links and place them outside paragraph
 				firstLink := true
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 					switch nl := child.(type) {
 					case *ast.Link:
-						if firstLink {
-							write("\n")
+						if isLinkOnly(n) {
+							if !firstLink {
+								write("\n")
+							}
+						} else {
+							if firstLink {
+								write("\n")
+							}
 						}
 						var buf bytes.Buffer
 						for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
@@ -178,13 +208,22 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 						}
 						text := bytes.TrimSpace(buf.Bytes())
 						buf.Reset()
-						write("\n=> %s %s", nl.Destination, text)
-						firstLink = false
-					case *ast.AutoLink:
-						if firstLink {
+						if !isLinkOnly(n) {
 							write("\n")
 						}
-						write("\n=> %s", nl.Label(source))
+						write("=> %s %s", nl.Destination, text)
+						firstLink = false
+					case *ast.AutoLink:
+						if isLinkOnly(n) {
+							if !firstLink {
+								write("\n")
+							}
+						} else {
+							if firstLink {
+								write("\n\n")
+							}
+						}
+						write("=> %s", nl.Label(source))
 						firstLink = false
 					}
 				}
@@ -208,6 +247,10 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			}
 
 		case *ast.AutoLink:
+			// leave link as is in the text source
+			if isLinkOnly(n.Parent()) {
+				return ast.WalkSkipChildren, nil
+			}
 			if entering {
 				write("%s", n.Label(source))
 			}
@@ -219,14 +262,16 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			// hide symbols
 
 		case *ast.Link:
-			// hide symbols
+			if isLinkOnly(n.Parent()) {
+				return ast.WalkSkipChildren, nil
+			}
 
 		case *ast.Image:
 			if entering {
 				write("=> ")
 				write("%s ", n.Destination)
 			} else {
-				if n.Type() == ast.TypeInline {
+				if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
 					write("\n")
 				}
 			}
@@ -236,6 +281,9 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			return ast.WalkSkipChildren, nil
 
 		case *ast.Text:
+			if isLinkOnly(n.Parent()) {
+				return ast.WalkSkipChildren, nil
+			}
 			if entering {
 				write("%s", n.Segment.Value(source))
 				if n.SoftLineBreak() {
