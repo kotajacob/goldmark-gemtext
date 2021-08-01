@@ -97,11 +97,32 @@ console.log(foo(5));
 
 Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
 
+Fabric has an amazing community of
+[dedicated](https://www.modrinth.com/user/modmuss50) and
+[brilliant](https://jellysquid.me/projects/) modders who actively embrace and
+support open source. Many of the other modding platforms of the past [were
+"ruled with an iron fist" and generally had all the worst parts you see in other
+*gaming* communities.](https://web.archive.org/web/20201125032822/) This is the
+primary reason I switched to fabric, but it also just so happens to have the
+fastest and fanciest server mods around.
+
+## Linkparagraphs
+
+https://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88
+https://computer.rip/2021-03-24-RMS.html
+
+[carpet](https://github.com/gnembon/fabric-carpet)\
+[carpet-extra](https://github.com/gnembon/carpet-extra/)\
+[carpet-autoCraftingTable](https://github.com/gnembon/carpet-autoCraftingTable)
 
 ## Images
 
 ![Minion](https://octodex.github.com/images/minion.png)
 ![Stormtroopocat](https://octodex.github.com/images/stormtroopocat.jpg "The Stormtroopocat")
+
+![1](https://octodex.github.com/images/minion.png)
+![2](https://octodex.github.com/images/stormtroopocat.jpg "The Stormtroopocat")
+![3](https://octodex.github.com/images/minion.png)
 
 Like links, Images also have a footnote style syntax
 
@@ -111,7 +132,7 @@ With a reference later in the document defining the URL location:
 
 [id]: https://octodex.github.com/images/dojocat.jpg  "The Dojocat"
 
-# Some good ole paragraphs
+## Some good ole paragraphs
 
  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eget mi sit amet
  dui vestibulum dapibus scelerisque vel justo. Proin convallis suscipit nisl ac
@@ -126,3 +147,32 @@ With a reference later in the document defining the URL location:
  sapien scelerisque ut. Duis molestie nibh sem, quis congue justo laoreet at.
 
 In vitae rutrum ligula, vel bibendum sapien. Sed molestie mi at felis finibus pulvinar. Mauris eleifend viverra risus at mattis. Nulla faucibus massa ac posuere facilisis. Nam varius suscipit congue. Aliquam nisl neque, pharetra vel arcu id, auctor dictum eros. Quisque eu interdum dui. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Cras nec sollicitudin diam, id commodo ex. 
+
+## Hard line breaks
+
+What happens to a dream deferred?  
+Does it dry up  
+like a raisin in the sun?  
+Or fester like a sore—  
+And then run?  
+Does it stink like rotten meat?  
+Or crust and sugar over—  
+like a syrupy sweet?  
+Maybe it just sags  
+like a heavy load.  
+Or does it explode?  
+
+Although she feeds me bread of bitterness,\
+And sinks into my throat her tiger’s tooth,\
+Stealing my breath of life, I will confess\
+I love this cultured hell that tests my youth.\
+Her vigor flows like tides into my blood,\
+Giving me strength erect against her hate,\
+Her bigness sweeps my being like a flood.\
+Yet, as a rebel fronts a king in state,\
+I stand within her walls with not a shred\
+Of terror, malice, not a word of jeer.\
+Darkly I gaze into the days ahead,\
+And see her might and granite wonders there,\
+Beneath the touch of Time’s unerring hand,\
+Like priceless treasures sinking in the sand.
