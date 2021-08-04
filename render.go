@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	Logger = log.New(os.Stderr, "", 0)
+	Logger   = log.New(os.Stderr, "", 0)
+	Emphasis = false // Print markdown emphasis symbols
 )
 
-// Render write node as Markdown o writer.
+// Render writes a node as gemtext.
 func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 	defer func() {
 		if p := recover(); p != nil && err == nil {
@@ -259,7 +260,13 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			// hide symbols
 
 		case *ast.Emphasis:
-			// hide symbols
+			if Emphasis {
+				if n.Level == 1 {
+					write("_")
+				} else {
+					write("**")
+				}
+			}
 
 		case *ast.Link:
 			if isLinkOnly(n.Parent()) {
