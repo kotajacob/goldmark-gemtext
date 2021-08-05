@@ -13,6 +13,7 @@ import (
 var (
 	Logger   = log.New(os.Stderr, "", 0)
 	Emphasis = false // Print markdown emphasis symbols
+	CodeSpan = false // Print codespan backtics
 )
 
 // Render writes a node as gemtext.
@@ -257,7 +258,9 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			}
 
 		case *ast.CodeSpan:
-			// hide symbols
+			if CodeSpan {
+				write("`")
+			}
 
 		case *ast.Emphasis:
 			if Emphasis {

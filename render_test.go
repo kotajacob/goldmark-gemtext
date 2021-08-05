@@ -6,9 +6,19 @@ import (
 )
 
 func TestEmphasis(t *testing.T) {
-	source := []byte("This sentence has _some_ **emphasis** in it.")
+	source := []byte("This sentence should have _some_ **emphasis** in it.")
 
 	Emphasis = true
+	err := Format(source, os.Stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCodeSpan(t *testing.T) {
+	source := []byte("This sentence should have `some codespan in` it.")
+
+	CodeSpan = true
 	err := Format(source, os.Stdout)
 	if err != nil {
 		t.Fatal(err)
@@ -21,6 +31,8 @@ func TestFormatter(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	Emphasis = false
+	CodeSpan = false
 	err = Format(source, os.Stdout)
 	if err != nil {
 		t.Fatal(err)
