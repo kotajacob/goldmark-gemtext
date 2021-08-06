@@ -13,6 +13,7 @@ import (
 
 var (
 	Logger        = log.New(os.Stderr, "", 0)
+	HeadingLinks  = true  // Convert link-only headings to links
 	Emphasis      = false // Print markdown emphasis symbols _ **
 	CodeSpan      = false // Print codespan backtics ``
 	Strikethrough = false // Print strikethrough symbols ~~ this is a markdown extension
@@ -65,6 +66,33 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 
 		case *ast.Heading:
 			if entering {
+				// check if heading is a link
+				if isLinkOnly(n) {
+					if HeadingLinks {
+						for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+							switch nl := child.(type) {
+							case *ast.Link:
+								write("=> %s %s", nl.Destination, nl.Text(source))
+								return ast.WalkSkipChildren, nil
+							case *ast.AutoLink:
+								write("=> %s ", nl.Label(source))
+								return ast.WalkSkipChildren, nil
+							}
+						}
+					} else {
+						for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+							switch nl := child.(type) {
+							case *ast.Link:
+								write("# %s", nl.Text(source))
+								return ast.WalkSkipChildren, nil
+							case *ast.AutoLink:
+								write("# %s", nl.Label(source))
+								return ast.WalkSkipChildren, nil
+							}
+						}
+					}
+				}
+
 				switch n.Level {
 				case 1:
 					write("# ")

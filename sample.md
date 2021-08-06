@@ -5,6 +5,16 @@
 ##### h5 Heading
 ###### h6 Heading
 
+# Heading [with](https://wikipedia.org) a link
+
+# [Complete link heading](https://twitter.com)
+
+# https://autolinkheading.com
+
+# [Multi](https://paste.nilsu.org) link [heading](https://kota.nz)
+
+# [Another](https://organicclimbing.com/) [multi link head](https://git.sr.ht/)
+
 
 ## Horizontal Rules
 

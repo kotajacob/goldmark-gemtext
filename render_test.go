@@ -5,6 +5,16 @@ import (
 	"testing"
 )
 
+func TestHeadingLinks(t *testing.T) {
+	source := []byte("# [twitter](https://twitter.com)")
+
+	HeadingLinks = false
+	err := Format(source, os.Stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestEmphasis(t *testing.T) {
 	source := []byte("This sentence should have _some_ **emphasis** in it.")
 
@@ -41,6 +51,7 @@ func TestFormatter(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	HeadingLinks = true
 	Emphasis = false
 	CodeSpan = false
 	Strikethrough = false
