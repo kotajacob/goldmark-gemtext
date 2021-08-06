@@ -8,12 +8,14 @@ import (
 	"os"
 
 	"github.com/yuin/goldmark/ast"
+	east "github.com/yuin/goldmark/extension/ast"
 )
 
 var (
-	Logger   = log.New(os.Stderr, "", 0)
-	Emphasis = false // Print markdown emphasis symbols
-	CodeSpan = false // Print codespan backtics
+	Logger        = log.New(os.Stderr, "", 0)
+	Emphasis      = false // Print markdown emphasis symbols _ **
+	CodeSpan      = false // Print codespan backtics ``
+	Strikethrough = false // Print strikethrough symbols ~~ this is a markdown extension
 )
 
 // Render writes a node as gemtext.
@@ -309,6 +311,11 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 		case *ast.String:
 			if entering {
 				write("%s", n.Value)
+			}
+
+		case *east.Strikethrough:
+			if Strikethrough {
+				write("~~")
 			}
 
 		default:

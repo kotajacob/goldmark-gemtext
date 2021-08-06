@@ -13,7 +13,10 @@ import (
 
 func Format(source []byte, w io.Writer, opts ...parser.ParseOption) error {
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.Linkify),
+		goldmark.WithExtensions(
+			extension.Linkify,
+			extension.Strikethrough,
+		),
 	)
 	doc := md.Parser().Parse(
 		text.NewReader(source), opts...)

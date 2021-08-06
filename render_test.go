@@ -25,6 +25,16 @@ func TestCodeSpan(t *testing.T) {
 	}
 }
 
+func TestStrikethrough(t *testing.T) {
+	source := []byte("This sentence should have ~~some strikethrough in~~ it.")
+
+	Strikethrough = true
+	err := Format(source, os.Stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestFormatter(t *testing.T) {
 	source, err := os.ReadFile("sample.md")
 	if err != nil {
@@ -33,6 +43,7 @@ func TestFormatter(t *testing.T) {
 
 	Emphasis = false
 	CodeSpan = false
+	Strikethrough = false
 	err = Format(source, os.Stdout)
 	if err != nil {
 		t.Fatal(err)
