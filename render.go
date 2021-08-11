@@ -13,12 +13,13 @@ import (
 )
 
 var (
-	Logger          = log.New(os.Stderr, "", 0)
-	HeadingLinks    = true  // Convert link-only headings to links
-	Emphasis        = false // Print markdown emphasis symbols _ **
-	UnicodeEmphasis = false // Print markdown emphasis using 𝘄𝗲𝗶𝗿𝗱 𝘶𝘯𝘪𝘤𝘰𝘥𝘦 hacks.
-	CodeSpan        = false // Print codespan backtics ``
-	Strikethrough   = false // Print strikethrough symbols ~~ this is a markdown extension
+	Logger               = log.New(os.Stderr, "", 0)
+	HeadingLinks         = true  // Convert link-only headings to links
+	Emphasis             = false // Print markdown emphasis symbols _ **
+	UnicodeEmphasis      = false // Print markdown emphasis using 𝘄𝗲𝗶𝗿𝗱 𝘶𝘯𝘪𝘤𝘰𝘥𝘦 hacks.
+	CodeSpan             = false // Print codespan backtics ``
+	Strikethrough        = false // Print strikethrough symbols ~~ this is a markdown extension
+	UnicodeStrikethrough = false // Print strikethrough using unicode hacks.
 )
 
 // Render writes a node as gemtext.
@@ -362,8 +363,17 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			}
 
 		case *east.Strikethrough:
-			if Strikethrough {
-				write("~~")
+			if entering {
+				if Strikethrough {
+					write("~~")
+				} else if UnicodeStrikethrough {
+					write("%s", fuckery.Strike(string(n.Text(source))))
+					return ast.WalkSkipChildren, nil
+				}
+			} else {
+				if Strikethrough {
+					write("~~")
+				}
 			}
 
 		default:

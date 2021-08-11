@@ -46,7 +46,14 @@ func TestStrikethrough(t *testing.T) {
 	source := []byte("This sentence should have ~~some strikethrough in~~ it.")
 
 	Strikethrough = true
+	UnicodeStrikethrough = false
 	err := Format(source, os.Stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Strikethrough = false
+	UnicodeStrikethrough = true
+	err = Format(source, os.Stdout)
 	if err != nil {
 		t.Fatal(err)
 	}
