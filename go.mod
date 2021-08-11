@@ -2,4 +2,7 @@ module git.sr.ht/~kota/goldmark-gemtext
 
 go 1.16
 
-require github.com/yuin/goldmark v1.4.0
+require (
+	git.sr.ht/~kota/fuckery v0.2.0
+	github.com/yuin/goldmark v1.4.0
+)

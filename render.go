@@ -7,16 +7,18 @@ import (
 	"log"
 	"os"
 
+	"git.sr.ht/~kota/fuckery"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 )
 
 var (
-	Logger        = log.New(os.Stderr, "", 0)
-	HeadingLinks  = true  // Convert link-only headings to links
-	Emphasis      = false // Print markdown emphasis symbols _ **
-	CodeSpan      = false // Print codespan backtics ``
-	Strikethrough = false // Print strikethrough symbols ~~ this is a markdown extension
+	Logger          = log.New(os.Stderr, "", 0)
+	HeadingLinks    = true  // Convert link-only headings to links
+	Emphasis        = false // Print markdown emphasis symbols _ **
+	UnicodeEmphasis = false // Print markdown emphasis using 𝘄𝗲𝗶𝗿𝗱 𝘶𝘯𝘪𝘤𝘰𝘥𝘦 hacks.
+	CodeSpan        = false // Print codespan backtics ``
+	Strikethrough   = false // Print strikethrough symbols ~~ this is a markdown extension
 )
 
 // Render writes a node as gemtext.
@@ -293,11 +295,29 @@ func Render(w io.Writer, source []byte, node ast.Node) (err error) {
 			}
 
 		case *ast.Emphasis:
-			if Emphasis {
-				if n.Level == 1 {
-					write("_")
-				} else {
-					write("**")
+			if entering {
+				if Emphasis {
+					if n.Level == 1 {
+						write("_")
+					} else {
+						write("**")
+					}
+				} else if UnicodeEmphasis {
+					if n.Level == 1 {
+						write("%s", fuckery.ItalicSans(string(n.Text(source))))
+						return ast.WalkSkipChildren, nil
+					} else {
+						write("%s", fuckery.BoldSans(string(n.Text(source))))
+						return ast.WalkSkipChildren, nil
+					}
+				}
+			} else {
+				if Emphasis {
+					if n.Level == 1 {
+						write("_")
+					} else {
+						write("**")
+					}
 				}
 			}
 

@@ -26,6 +26,8 @@ ___
 
 ## Emphasis
 
+**a*bc***<!-- -->*mno*<!-- -->***xy*z**
+
 **This is bold text**
 
 __This is bold text__

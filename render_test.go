@@ -19,7 +19,14 @@ func TestEmphasis(t *testing.T) {
 	source := []byte("This sentence should have _some_ **emphasis** in it.")
 
 	Emphasis = true
+	UnicodeEmphasis = false
 	err := Format(source, os.Stdout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Emphasis = false
+	UnicodeEmphasis = true
+	err = Format(source, os.Stdout)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,6 +60,7 @@ func TestFormatter(t *testing.T) {
 
 	HeadingLinks = true
 	Emphasis = false
+	UnicodeEmphasis = false
 	CodeSpan = false
 	Strikethrough = false
 	err = Format(source, os.Stdout)
