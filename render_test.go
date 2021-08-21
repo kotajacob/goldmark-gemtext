@@ -1,77 +1,38 @@
 package gemtext
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-func TestHeadingLinks(t *testing.T) {
-	source := []byte("# [twitter](https://twitter.com)")
-
-	HeadingLinks = false
-	err := Format(source, os.Stdout)
+func TestRender(t *testing.T) {
+	source, err := os.ReadFile("test_data/render.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func TestEmphasis(t *testing.T) {
-	source := []byte("This sentence should have _some_ **emphasis** in it.")
-
-	Emphasis = true
-	UnicodeEmphasis = false
-	err := Format(source, os.Stdout)
+	want, err := os.ReadFile("test_data/render.gmi")
 	if err != nil {
 		t.Fatal(err)
 	}
-	Emphasis = false
-	UnicodeEmphasis = true
-	err = Format(source, os.Stdout)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestCodeSpan(t *testing.T) {
-	source := []byte("This sentence should have `some codespan in` it.")
-
-	CodeSpan = true
-	err := Format(source, os.Stdout)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestStrikethrough(t *testing.T) {
-	source := []byte("This sentence should have ~~some strikethrough in~~ it.")
-
-	Strikethrough = true
-	UnicodeStrikethrough = false
-	err := Format(source, os.Stdout)
-	if err != nil {
-		t.Fatal(err)
-	}
-	Strikethrough = false
-	UnicodeStrikethrough = true
-	err = Format(source, os.Stdout)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestFormatter(t *testing.T) {
-	source, err := os.ReadFile("sample.md")
-	if err != nil {
-		t.Fatal(err)
-	}
+	var buf bytes.Buffer
 
 	HeadingLinks = true
 	Emphasis = false
 	UnicodeEmphasis = false
 	CodeSpan = false
 	Strikethrough = false
-	err = Format(source, os.Stdout)
+	err = Format(source, &buf)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	got := buf.Bytes()
+	if !cmp.Equal(got, want) {
+		fmt.Println(cmp.Diff(got, want))
+	}
+
 }
