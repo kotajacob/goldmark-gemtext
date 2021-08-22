@@ -1,0 +1,9 @@
+image: ubuntu/lts
+packages:
+  - golang
+sources:
+  - https://git.sr.ht/~kota/goldmark-gemtext
+tasks:
+  - test: |
+      cd goldmark-gemtext
+      go test
