@@ -1,6 +1,6 @@
-image: ubuntu/lts
+image: alpine/latest
 packages:
-  - golang
+  - go
 sources:
   - https://git.sr.ht/~kota/goldmark-gemtext
 tasks:
