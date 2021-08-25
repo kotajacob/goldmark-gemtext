@@ -23,7 +23,7 @@ func Format(source []byte, w io.Writer, opts ...parser.ParseOption) error {
 	return Render(w, source, doc)
 }
 
-// Markdown is a markdown format renderer.
+// Gemtext is a gemtext format renderer.
 var Gemtext renderer.Renderer = new(gemtextRenderer)
 
 type gemtextRenderer struct{}
