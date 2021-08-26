@@ -3,384 +3,470 @@ package gemtext
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"log"
-	"os"
 
 	"git.sr.ht/~kota/fuckery"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
+	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/util"
 )
 
-var (
-	Logger               = log.New(os.Stderr, "", 0)
-	HeadingLinks         = true  // Convert link-only headings to links
-	Emphasis             = false // Print markdown emphasis symbols _ **
-	UnicodeEmphasis      = false // Print markdown emphasis using 𝘄𝗲𝗶𝗿𝗱 𝘶𝘯𝘪𝘤𝘰𝘥𝘦 hacks.
-	CodeSpan             = false // Print codespan backtics ``
-	Strikethrough        = false // Print strikethrough symbols ~~ this is a markdown extension
-	UnicodeStrikethrough = false // Print strikethrough using unicode hacks.
-)
+// New returns a gemtext renderer.
+func New(opts ...Option) renderer.Renderer {
+	config := NewConfig()
+	for _, opt := range opts {
+		opt.SetConfig(config)
+	}
+	r := renderer.NewRenderer(
+		renderer.WithNodeRenderers(util.Prioritized(NewGemRenderer(config), 1000)),
+	)
+	return r
+}
 
-// Render writes a node as gemtext.
-func Render(w io.Writer, source []byte, node ast.Node) (err error) {
-	defer func() {
-		if p := recover(); p != nil && err == nil {
-			if e, ok := p.(error); ok {
-				err = e
-			} else {
-				err = fmt.Errorf("%v", p)
+// A GemRenderer struct is an implementation of renderer.GemRenderer that renders
+// nodes as gemtext.
+type GemRenderer struct {
+	config Config
+}
+
+// NewGemRenderer returns a new renderer.NodeRenderer.
+func NewGemRenderer(config *Config) *GemRenderer {
+	r := &GemRenderer{
+		config: *config,
+	}
+	return r
+}
+
+// gem must implement renderer.NodeRenderer
+var _ renderer.NodeRenderer = &GemRenderer{}
+
+// RegisterFuncs implements NodeRenderer.RegisterFuncs.
+func (r *GemRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+	reg.Register(ast.KindDocument, r.renderDocument)
+	reg.Register(ast.KindHeading, r.renderHeading)
+	reg.Register(ast.KindBlockquote, r.renderBlockquote)
+	reg.Register(ast.KindCodeBlock, r.renderCodeBlock)
+	reg.Register(ast.KindFencedCodeBlock, r.renderFencedCodeBlock)
+	reg.Register(ast.KindHTMLBlock, r.renderHTMLBlock)
+	reg.Register(ast.KindList, r.renderList)
+	reg.Register(ast.KindListItem, r.renderListItem)
+	reg.Register(ast.KindParagraph, r.renderParagraph)
+	reg.Register(ast.KindTextBlock, r.renderTextBlock)
+	reg.Register(ast.KindThematicBreak, r.renderThematicBreak)
+	reg.Register(ast.KindAutoLink, r.renderAutoLink)
+	reg.Register(ast.KindCodeSpan, r.renderCodeSpan)
+	reg.Register(ast.KindEmphasis, r.renderEmphasis)
+	reg.Register(ast.KindImage, r.renderImage)
+	reg.Register(ast.KindLink, r.renderLink)
+	reg.Register(ast.KindRawHTML, r.renderRawHTML)
+	reg.Register(ast.KindText, r.renderText)
+	reg.Register(ast.KindString, r.renderString)
+	reg.Register(east.KindStrikethrough, r.renderStrikethrough)
+}
+
+// linkOnly is a helper function that returns true is a node's subnodes have
+// links and don't have text. This is used for checking if a heading/paragraph
+// is actually JUST a link.
+func linkOnly(source []byte, node ast.Node) bool {
+	var hasLink bool = false
+	var hasText bool = false
+	// check if the paragraph contains ONLY links
+	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
+		switch nl := child.(type) {
+		case *ast.Link:
+			hasLink = true
+		case *ast.AutoLink:
+			hasLink = true
+		case *ast.Text:
+			if string(nl.Segment.Value(source)) != "" {
+				hasText = true
 			}
-		}
-	}()
-
-	write := func(str string, a ...interface{}) {
-		if _, err = fmt.Fprintf(w, str, a...); err != nil {
-			panic(err)
 		}
 	}
-
-	isLinkOnly := func(n ast.Node) bool {
-		var hasLink bool = false
-		var hasText bool = false
-		// check if the paragraph contains ONLY links
-		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-			switch nl := child.(type) {
-			case *ast.Link:
-				hasLink = true
-			case *ast.AutoLink:
-				hasLink = true
-			case *ast.Text:
-				if string(nl.Segment.Value(source)) != "" {
-					hasText = true
-				}
-			}
-		}
-		if hasLink == true && hasText == false {
-			return true
-		}
-		return false
+	if hasLink == true && hasText == false {
+		return true
 	}
+	return false
+}
 
-	return ast.Walk(node, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
-		switch n := node.(type) {
-		case *ast.Document:
-			// could do stuff with markdown metadata
+func (r *GemRenderer) renderDocument(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// nothing to do
+	return ast.WalkContinue, nil
+}
 
-		case *ast.Heading:
-			if entering {
-				// check if heading is a link
-				if isLinkOnly(n) {
-					if HeadingLinks {
-						for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-							switch nl := child.(type) {
-							case *ast.Link:
-								write("=> %s %s", nl.Destination, nl.Text(source))
-								return ast.WalkSkipChildren, nil
-							case *ast.AutoLink:
-								write("=> %s ", nl.Label(source))
-								return ast.WalkSkipChildren, nil
-							}
-						}
-					} else {
-						for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-							switch nl := child.(type) {
-							case *ast.Link:
-								write("# %s", nl.Text(source))
-								return ast.WalkSkipChildren, nil
-							case *ast.AutoLink:
-								write("# %s", nl.Label(source))
-								return ast.WalkSkipChildren, nil
-							}
-						}
-					}
-				}
-
-				switch n.Level {
-				case 1:
-					write("# ")
-				case 2:
-					write("## ")
-				default:
-					write("### ")
-				}
-			} else {
-				write("\n\n")
-			}
-
-		case *ast.Blockquote:
-			if entering {
-				var buf bytes.Buffer
-				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-					if err = Render(&buf, source, child); err != nil {
-						return ast.WalkStop, err
-					}
-				}
-
-				text := bytes.TrimSpace(buf.Bytes())
-				lines := bytes.SplitAfter(text, []byte{'\n'})
-				for _, line := range lines {
-					write(">")
-					if len(line) > 0 && line[0] != '>' && line[0] != '\n' {
-						write(" ")
-					}
-					write("%s", line)
-				}
-
-				return ast.WalkSkipChildren, nil
-			} else {
-				write("\n\n")
-			}
-
-		case *ast.CodeBlock:
-			if entering {
-				write("```")
-				write("\n")
-				lines := n.Lines()
-				for i := 0; i < lines.Len(); i++ {
-					line := lines.At(i)
-					write("%s", line.Value(source))
-				}
-
-				write("```")
-				return ast.WalkSkipChildren, nil
-			} else {
-				write("\n\n")
-			}
-
-		case *ast.FencedCodeBlock:
-			if entering {
-				write("```")
-				if n.Info != nil {
-					write("%s", n.Info.Segment.Value(source))
-				}
-				write("\n")
-
-				lines := n.Lines()
-				for i := 0; i < lines.Len(); i++ {
-					line := lines.At(i)
-					write("%s", line.Value(source))
-				}
-
-				write("```")
-				return ast.WalkSkipChildren, nil
-			} else {
-				write("\n\n")
-			}
-
-		case *ast.HTMLBlock:
-			return ast.WalkSkipChildren, nil
-
-		case *ast.List:
-			if entering {
-				start := n.Start
-				if start == 0 {
-					start = 1
-				}
-				indent := "  "
-
-				var buf bytes.Buffer
-				// all ListItems
-				for nl := n.FirstChild(); nl != nil; nl = nl.NextSibling() {
-					for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
-						if err = Render(&buf, source, chld); err != nil {
-							return ast.WalkStop, err
-						}
-					}
-
-					// print list item
-					write("* ")
-
-					text := bytes.TrimSpace(buf.Bytes())
-					buf.Reset()
-
-					lines := bytes.SplitAfter(text, []byte{'\n'})
-					for i, line := range lines {
-						if i > 0 && len(line) > 0 && line[0] != '\n' {
-							write(indent)
-						}
-						write("%s", line)
-					}
-
-					write("\n")
-					if !n.IsTight {
-						write("\n")
-					}
-				}
-
-				if n.IsTight {
-					write("\n")
-				}
-
-				return ast.WalkSkipChildren, nil
-			}
-
-		case *ast.ListItem:
-			// return ast.WalkSkipChildren, nil
-
-		case *ast.Paragraph:
-			// check if paragraph contains links and no text
-			if !entering {
-				// loop through links and place them outside paragraph
-				firstLink := true
+func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Heading)
+	if entering {
+		// check if heading is a link
+		if linkOnly(source, n) {
+			switch r.config.HeadingLink {
+			case HeadingLinkAuto:
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 					switch nl := child.(type) {
 					case *ast.Link:
-						if isLinkOnly(n) {
-							if !firstLink {
-								write("\n")
-							}
-						} else {
-							if firstLink {
-								write("\n")
-							}
-						}
-						var buf bytes.Buffer
-						for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
-							if err = Render(&buf, source, chld); err != nil {
-								return ast.WalkStop, err
-							}
-						}
-						text := bytes.TrimSpace(buf.Bytes())
-						buf.Reset()
-						if !isLinkOnly(n) {
-							write("\n")
-						}
-						write("=> %s %s", nl.Destination, text)
-						firstLink = false
+						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
+						return ast.WalkSkipChildren, nil
 					case *ast.AutoLink:
-						if isLinkOnly(n) {
-							if !firstLink {
-								write("\n")
-							}
-						} else {
-							if firstLink {
-								write("\n\n")
-							}
-						}
-						write("=> %s", nl.Label(source))
-						firstLink = false
-					}
-				}
-				write("\n\n")
-			}
-
-		case *ast.TextBlock:
-			if !entering {
-				if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
-					write("\n")
-				}
-			}
-
-		case *ast.ThematicBreak:
-			if entering {
-				for i := 0; i < 80; i++ {
-					write("-")
-				}
-			} else {
-				write("\n\n")
-			}
-
-		case *ast.AutoLink:
-			// leave link as is in the text source
-			if isLinkOnly(n.Parent()) {
-				return ast.WalkSkipChildren, nil
-			}
-			if entering {
-				write("%s", n.Label(source))
-			}
-
-		case *ast.CodeSpan:
-			if CodeSpan {
-				write("`")
-			}
-
-		case *ast.Emphasis:
-			if entering {
-				if Emphasis {
-					if n.Level == 1 {
-						write("_")
-					} else {
-						write("**")
-					}
-				} else if UnicodeEmphasis {
-					if n.Level == 1 {
-						write("%s", fuckery.ItalicSans(string(n.Text(source))))
-						return ast.WalkSkipChildren, nil
-					} else {
-						write("%s", fuckery.BoldSans(string(n.Text(source))))
+						fmt.Fprintf(w, "=> %s ", nl.Label(source))
 						return ast.WalkSkipChildren, nil
 					}
 				}
-			} else {
-				if Emphasis {
-					if n.Level == 1 {
-						write("_")
-					} else {
-						write("**")
+			case HeadingLinkOff:
+				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+					switch nl := child.(type) {
+					case *ast.Link:
+						fmt.Fprintf(w, "# %s", nl.Text(source))
+						return ast.WalkSkipChildren, nil
+					case *ast.AutoLink:
+						fmt.Fprintf(w, "# %s", nl.Label(source))
+						return ast.WalkSkipChildren, nil
 					}
 				}
-			}
-
-		case *ast.Link:
-			if isLinkOnly(n.Parent()) {
-				return ast.WalkSkipChildren, nil
-			}
-
-		case *ast.Image:
-			if entering {
-				write("=> ")
-				write("%s ", n.Destination)
-			} else {
-				if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
-					write("\n")
-				}
-			}
-
-		case *ast.RawHTML:
-			// skip
-			return ast.WalkSkipChildren, nil
-
-		case *ast.Text:
-			if isLinkOnly(n.Parent()) {
-				return ast.WalkSkipChildren, nil
-			}
-			if entering {
-				write("%s", n.Segment.Value(source))
-				if n.SoftLineBreak() {
-					if n.NextSibling().Kind() != ast.KindImage {
-						write(" ")
-					}
-				}
-				if n.HardLineBreak() {
-					write("\n")
-				}
-			}
-
-		case *ast.String:
-			if entering {
-				write("%s", n.Value)
-			}
-
-		case *east.Strikethrough:
-			if entering {
-				if Strikethrough {
-					write("~~")
-				} else if UnicodeStrikethrough {
-					write("%s", fuckery.Strike(string(n.Text(source))))
-					return ast.WalkSkipChildren, nil
-				}
-			} else {
-				if Strikethrough {
-					write("~~")
-				}
-			}
-
-		default:
-			if Logger != nil && entering {
-				Logger.Printf("WARNING: unsupported AST %v type", node.Kind())
 			}
 		}
+
+		// link-only headings skip this part by returning WalkSkipChildren
+		switch n.Level {
+		case 1:
+			fmt.Fprintf(w, "# ")
+		case 2:
+			fmt.Fprintf(w, "## ")
+		default:
+			fmt.Fprintf(w, "### ")
+		}
+	} else {
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderBlockquote(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Blockquote)
+	if entering {
+		var buf bytes.Buffer
+		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+			sub := New()
+			if err := sub.Render(&buf, source, child); err != nil {
+				return ast.WalkStop, err
+			}
+		}
+
+		text := bytes.TrimSpace(buf.Bytes())
+		lines := bytes.SplitAfter(text, []byte{'\n'})
+		for _, line := range lines {
+			fmt.Fprintf(w, ">")
+			if len(line) > 0 && line[0] != '>' && line[0] != '\n' {
+				fmt.Fprintf(w, " ")
+			}
+			fmt.Fprintf(w, "%s", line)
+		}
+
+		return ast.WalkSkipChildren, nil
+	} else {
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderCodeBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// NOTE: This differs slightly from FencedCodeBlock as it cannot contain an
+	// info line.
+	n := node.(*ast.CodeBlock)
+	if entering {
+		fmt.Fprintf(w, "```")
+		fmt.Fprintf(w, "\n")
+		lines := n.Lines()
+		for i := 0; i < lines.Len(); i++ {
+			line := lines.At(i)
+			fmt.Fprintf(w, "%s", line.Value(source))
+		}
+
+		fmt.Fprintf(w, "```")
+		return ast.WalkSkipChildren, nil
+	} else {
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderFencedCodeBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.FencedCodeBlock)
+	if entering {
+		fmt.Fprintf(w, "```")
+		if n.Info != nil {
+			fmt.Fprintf(w, "%s", n.Info.Segment.Value(source))
+		}
+		fmt.Fprintf(w, "\n")
+
+		lines := n.Lines()
+		for i := 0; i < lines.Len(); i++ {
+			line := lines.At(i)
+			fmt.Fprintf(w, "%s", line.Value(source))
+		}
+
+		fmt.Fprintf(w, "```")
+		return ast.WalkSkipChildren, nil
+	} else {
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderHTMLBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip html block - can't be used
+	return ast.WalkSkipChildren, nil
+}
+
+func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.List)
+	if entering {
+		start := n.Start
+		if start == 0 {
+			start = 1
+		}
+		indent := "  "
+
+		var buf bytes.Buffer
+		// all ListItems
+		for nl := n.FirstChild(); nl != nil; nl = nl.NextSibling() {
+			for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
+				sub := New()
+				if err := sub.Render(&buf, source, chld); err != nil {
+					return ast.WalkStop, err
+				}
+			}
+
+			// print list item
+			fmt.Fprintf(w, "* ")
+
+			text := bytes.TrimSpace(buf.Bytes())
+			buf.Reset()
+
+			lines := bytes.SplitAfter(text, []byte{'\n'})
+			for i, line := range lines {
+				if i > 0 && len(line) > 0 && line[0] != '\n' {
+					fmt.Fprintf(w, indent)
+				}
+				fmt.Fprintf(w, "%s", line)
+			}
+
+			fmt.Fprintf(w, "\n")
+			if !n.IsTight {
+				fmt.Fprintf(w, "\n")
+			}
+		}
+
+		if n.IsTight {
+			fmt.Fprintf(w, "\n")
+		}
+
+		return ast.WalkSkipChildren, nil
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderListItem(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// nothing to do
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Paragraph)
+	if !entering {
+		// loop through links and place them outside paragraph
+		firstLink := true
+		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+			switch nl := child.(type) {
+			case *ast.Link:
+				if linkOnly(source, n) {
+					if !firstLink {
+						// add line breaks between links in a link only paragraph
+						fmt.Fprintf(w, "\n")
+					}
+				} else {
+					if firstLink {
+						fmt.Fprintf(w, "\n")
+					}
+				}
+				var buf bytes.Buffer
+				for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
+					sub := New()
+					if err := sub.Render(&buf, source, chld); err != nil {
+						return ast.WalkStop, err
+					}
+				}
+				text := bytes.TrimSpace(buf.Bytes())
+				buf.Reset()
+				if !linkOnly(source, n) {
+					fmt.Fprintf(w, "\n")
+				}
+				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+				firstLink = false
+			case *ast.AutoLink:
+				if linkOnly(source, n) {
+					if !firstLink {
+						fmt.Fprintf(w, "\n")
+					}
+				} else {
+					if firstLink {
+						fmt.Fprintf(w, "\n\n")
+					}
+				}
+				fmt.Fprintf(w, "=> %s", nl.Label(source))
+				firstLink = false
+			}
+		}
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderTextBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.TextBlock)
+	if !entering {
+		if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
+			fmt.Fprintf(w, "\n")
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderThematicBreak(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// TODO: make this configurable
+	if entering {
+		for i := 0; i < 80; i++ {
+			fmt.Fprintf(w, "-")
+		}
+	} else {
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderAutoLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip if the parent node contains only links
+	n := node.(*ast.AutoLink)
+	if entering {
+		if linkOnly(source, node.Parent()) {
+			return ast.WalkSkipChildren, nil
+		} else {
+			fmt.Fprintf(w, string(n.Label(source)))
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderCodeSpan(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	switch r.config.CodeSpan {
+	case CodeSpanMarkdown:
+		fmt.Fprintf(w, "`")
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderEmphasis(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Emphasis)
+	if entering {
+		switch r.config.Emphasis {
+		case EmphasisMarkdown:
+			if n.Level == 1 {
+				fmt.Fprintf(w, "_")
+			} else {
+				fmt.Fprintf(w, "**")
+			}
+		case EmphasisUnicode:
+			if n.Level == 1 {
+				fmt.Fprintf(w, "%s", fuckery.ItalicSans(string(n.Text(source))))
+				return ast.WalkSkipChildren, nil
+			} else {
+				fmt.Fprintf(w, "%s", fuckery.BoldSans(string(n.Text(source))))
+				return ast.WalkSkipChildren, nil
+			}
+		}
+	} else {
+		switch r.config.Emphasis {
+		case EmphasisMarkdown:
+			if n.Level == 1 {
+				fmt.Fprintf(w, "_")
+			} else {
+				fmt.Fprintf(w, "**")
+			}
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Image)
+	if entering {
+		fmt.Fprintf(w, "=> ")
+		fmt.Fprintf(w, "%s ", n.Destination)
+	} else {
+		if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
+			fmt.Fprintf(w, "\n")
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip if the parent node contains only links
+	if linkOnly(source, node.Parent()) {
+		return ast.WalkSkipChildren, nil
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderRawHTML(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip raw html - can't be used
+	return ast.WalkSkipChildren, nil
+}
+
+func (r *GemRenderer) renderText(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip if the parent node contains only links
+	if linkOnly(source, node.Parent()) {
+		return ast.WalkSkipChildren, nil
+	}
+	n := node.(*ast.Text)
+	if entering {
+		fmt.Fprintf(w, "%s", n.Segment.Value(source))
+		// use a space for soft line breaks unless the next node is an image
+		if n.SoftLineBreak() {
+			if n.NextSibling().Kind() != ast.KindImage {
+				fmt.Fprintf(w, " ")
+			}
+		}
+		if n.HardLineBreak() {
+			fmt.Fprintf(w, "\n")
+		}
+	}
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderString(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	if !entering {
 		return ast.WalkContinue, nil
-	})
+	}
+	n := node.(*ast.String)
+	fmt.Fprintf(w, "%s", n.Value)
+	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderStrikethrough(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*east.Strikethrough)
+	if entering {
+		switch r.config.Strikethrough {
+		case StrikethroughMarkdown:
+			fmt.Fprintf(w, "~~")
+		case StrikethroughUnicode:
+			fmt.Fprintf(w, "%s", fuckery.Strike(string(n.Text(source))))
+			return ast.WalkSkipChildren, nil
+		}
+	} else {
+		switch r.config.Strikethrough {
+		case StrikethroughMarkdown:
+			fmt.Fprintf(w, "~~")
+		}
+	}
+	return ast.WalkContinue, nil
 }
