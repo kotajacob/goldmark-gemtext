@@ -49,6 +49,8 @@ func TestRender(t *testing.T) {
 	}{
 		{"test_data/render.md", "test_data/renderDefault.gmi",
 			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
+			Config{HeadingLinkOff, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 	}
 
 	for _, test := range tests {

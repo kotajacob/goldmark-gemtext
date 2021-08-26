@@ -55,10 +55,10 @@ type HeadingLink uint8
 const (
 	// Ignore links in headings; writing the label of the link in its place.
 	HeadingLinkOff HeadingLink = iota
-	// Convert link-only headings to links, but ignore links in multi-link
-	// headings.
+	// If the heading contains only links. If so, use the first link instead of
+	// printing a heading. Otherwise print a heading, ignoring links.
 	HeadingLinkAuto
-	// Print links below heading.
+	// Print all links below heading.
 	HeadingLinkBelow
 )
 

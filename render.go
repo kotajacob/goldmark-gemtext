@@ -97,35 +97,26 @@ func (r *GemRenderer) renderDocument(w util.BufWriter, source []byte, node ast.N
 func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Heading)
 	if entering {
-		// check if heading is a link
-		if linkOnly(source, n) {
-			switch r.config.HeadingLink {
-			case HeadingLinkAuto:
+		// Check if the heading contains only links.
+		if r.config.HeadingLink == HeadingLinkAuto {
+			if linkOnly(source, n) {
+				// In Auto mode, link only headings prints their first link then exit.
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 					switch nl := child.(type) {
 					case *ast.Link:
+						// Print the first link we find, then skip then rest of the node.
 						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
 						return ast.WalkSkipChildren, nil
 					case *ast.AutoLink:
-						fmt.Fprintf(w, "=> %s ", nl.Label(source))
-						return ast.WalkSkipChildren, nil
-					}
-				}
-			case HeadingLinkOff:
-				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-					switch nl := child.(type) {
-					case *ast.Link:
-						fmt.Fprintf(w, "# %s", nl.Text(source))
-						return ast.WalkSkipChildren, nil
-					case *ast.AutoLink:
-						fmt.Fprintf(w, "# %s", nl.Label(source))
+						// Print the first link we find, then skip then rest of the node.
+						fmt.Fprintf(w, "=> %s", nl.Label(source))
 						return ast.WalkSkipChildren, nil
 					}
 				}
 			}
 		}
 
-		// link-only headings skip this part by returning WalkSkipChildren
+		// Print the heading. Automode link only headings wont make it this far.
 		switch n.Level {
 		case 1:
 			fmt.Fprintf(w, "# ")
@@ -133,6 +124,22 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			fmt.Fprintf(w, "## ")
 		default:
 			fmt.Fprintf(w, "### ")
+		}
+
+		switch r.config.HeadingLink {
+		case HeadingLinkOff:
+			// Check if it's link only to print the link labels. Link labels
+			// are not printed by links if their parent is link only.
+			if linkOnly(source, n) {
+				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+					switch nl := child.(type) {
+					case *ast.Link:
+						fmt.Fprintf(w, "%s", nl.Text(source))
+					case *ast.AutoLink:
+						fmt.Fprintf(w, "%s", nl.Label(source))
+					}
+				}
+			}
 		}
 	} else {
 		fmt.Fprintf(w, "\n\n")

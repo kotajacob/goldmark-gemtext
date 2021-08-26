@@ -12,9 +12,9 @@
 
 # Heading with a link
 
-=> https://twitter.com Complete link heading
+# Complete link heading
 
-=> https://autolinkheading.com
+# https://autolinkheading.com
 
 # Multi link heading
 
