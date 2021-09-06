@@ -24,6 +24,10 @@ ___
 
 ***
 
+## HTML Blocks are disabled
+
+<table><tr><td><pre>Hello</pre></td></tr></table>
+
 ## Emphasis
 
 **a*bc***<!-- -->*mno*<!-- -->***xy*z**

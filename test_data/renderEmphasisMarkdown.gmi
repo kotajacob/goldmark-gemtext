@@ -12,9 +12,9 @@
 
 # Heading with a link
 
-# Complete link heading
+=> https://twitter.com Complete link heading
 
-# https://autolinkheading.com
+=> https://autolinkheading.com
 
 # Multi link heading
 
@@ -32,15 +32,15 @@
 
 ## Emphasis
 
-abcmnoxyz
+**a_bc_**_mno_**_xy_z**
 
-This is bold text
+**This is bold text**
 
-This is bold text
+**This is bold text**
 
-This is italic text
+_This is italic text_
 
-This is italic text
+_This is italic text_
 
 Strikethrough
 
@@ -122,7 +122,7 @@ Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
 
 => https://github.com/nodeca/pica
 
-Fabric has an amazing community of dedicated and brilliant modders who actively embrace and support open source. Many of the other modding platforms of the past were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities. This is the primary reason I switched to fabric, but it also just so happens to have the fastest and fanciest server mods around.
+Fabric has an amazing community of dedicated and brilliant modders who actively embrace and support open source. Many of the other modding platforms of the past were "ruled with an iron fist" and generally had all the worst parts you see in other _gaming_ communities. This is the primary reason I switched to fabric, but it also just so happens to have the fastest and fanciest server mods around.
 
 => https://www.modrinth.com/user/modmuss50 dedicated
 => https://jellysquid.me/projects/ brilliant
