@@ -1,0 +1,189 @@
+# h1 Heading 8-)
+
+## h2 Heading {#test-hd}
+
+### h3 Heading
+
+### h4 Heading
+
+### h5 Heading
+
+### h6 Heading
+
+# Heading with a link
+
+=> https://twitter.com Complete link heading
+
+=> https://autolinkheading.com
+
+# Multi link heading
+
+# Another multi link head
+
+## Horizontal Rules
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+
+## HTML Blocks are disabled
+
+## Emphasis
+
+abcmnoxyz
+
+This is bold text
+
+This is bold text
+
+This is italic text
+
+This is italic text
+
+S̶t̶r̶i̶k̶e̶t̶h̶r̶o̶u̶g̶h̶
+
+## Blockquotes
+
+> Blockquotes can also be nested...
+>
+>> ...by using additional greater-than signs right next to each other...
+>>
+>>> ...or with spaces between arrows. {#bl .class}
+
+## Lists
+
+Unordered
+
+* Create a list by starting a line with +, -, or *
+* Sub-lists are made by indenting 2 spaces:
+  * Marker character change forces new list start:
+    * Ac tristique libero volutpat at
+
+    * Facilisis in pretium nisl aliquet
+
+    * Nulla volutpat aliquam velit
+* Very easy!
+
+Ordered
+
+* Lorem ipsum dolor sit amet
+
+* Consectetur adipiscing elit
+
+* Integer molestie lorem at massa
+
+* You can use sequential numbers...
+
+* ...or keep all the numbers as 1.
+
+Start numbering with offset:
+
+* foo
+* bar
+
+## Code
+
+Inline code
+
+Indented code
+
+```
+// Some comments
+line 1 of code
+line 2 of code
+line 3 of code
+```
+
+Block code "fences"
+
+```markdown
+Sample text here...
+```
+
+Syntax highlighting
+
+```js
+var foo = function (bar) {
+  return bar++;
+};
+
+console.log(foo(5));
+```
+
+## Links
+
+=> http://dev.nodeca.com link text
+
+=> http://nodeca.github.io/pica/demo/ link with title
+
+Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
+
+=> https://github.com/nodeca/pica
+
+Fabric has an amazing community of dedicated and brilliant modders who actively embrace and support open source. Many of the other modding platforms of the past were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities. This is the primary reason I switched to fabric, but it also just so happens to have the fastest and fanciest server mods around.
+
+=> https://www.modrinth.com/user/modmuss50 dedicated
+=> https://jellysquid.me/projects/ brilliant
+=> https://web.archive.org/web/20201125032822/ were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities.
+
+## Linkparagraphs
+
+=> https://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88
+=> https://computer.rip/2021-03-24-RMS.html
+
+=> https://github.com/gnembon/fabric-carpet carpet
+=> https://github.com/gnembon/carpet-extra/ carpet-extra
+=> https://github.com/gnembon/carpet-autoCraftingTable carpet-autoCraftingTable
+
+## Images
+
+=> https://octodex.github.com/images/minion.png Minion
+=> https://octodex.github.com/images/stormtroopocat.jpg Stormtroopocat
+
+=> https://octodex.github.com/images/minion.png 1
+=> https://octodex.github.com/images/stormtroopocat.jpg 2
+=> https://octodex.github.com/images/minion.png 3
+
+Like links, Images also have a footnote style syntax
+
+=> https://octodex.github.com/images/dojocat.jpg Alt text
+
+With a reference later in the document defining the URL location:
+
+## Some good ole paragraphs
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eget mi sit amet dui vestibulum dapibus scelerisque vel justo. Proin convallis suscipit nisl ac posuere. Phasellus commodo, leo vel eleifend euismod, nulla odio commodo turpis, quis rhoncus massa eros vitae lectus. Proin pretium laoreet sodales. Praesent vehicula est ante, vel ullamcorper ante fermentum aliquam. In mauris dui, mattis at mi et, viverra mollis justo. Praesent elit nisl, faucibus vitae leo eu, dictum tristique nulla. Cras vel nibh erat. Ut rutrum scelerisque nisi, non sollicitudin purus vehicula ut. Maecenas tincidunt tellus urna. Sed ac ex in felis tincidunt maximus. Fusce vestibulum ex sed dictum tempus. Nunc a rhoncus augue. Nulla at blandit odio. Aliquam semper volutpat arcu, a porttitor sapien scelerisque ut. Duis molestie nibh sem, quis congue justo laoreet at.
+
+In vitae rutrum ligula, vel bibendum sapien. Sed molestie mi at felis finibus pulvinar. Mauris eleifend viverra risus at mattis. Nulla faucibus massa ac posuere facilisis. Nam varius suscipit congue. Aliquam nisl neque, pharetra vel arcu id, auctor dictum eros. Quisque eu interdum dui. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Cras nec sollicitudin diam, id commodo ex.
+
+## Hard line breaks
+
+What happens to a dream deferred?
+Does it dry up
+like a raisin in the sun?
+Or fester like a sore—
+And then run?
+Does it stink like rotten meat?
+Or crust and sugar over—
+like a syrupy sweet?
+Maybe it just sags
+like a heavy load.
+Or does it explode?
+
+Although she feeds me bread of bitterness,
+And sinks into my throat her tiger’s tooth,
+Stealing my breath of life, I will confess
+I love this cultured hell that tests my youth.
+Her vigor flows like tides into my blood,
+Giving me strength erect against her hate,
+Her bigness sweeps my being like a flood.
+Yet, as a rebel fronts a king in state,
+I stand within her walls with not a shred
+Of terror, malice, not a word of jeer.
+Darkly I gaze into the days ahead,
+And see her might and granite wonders there,
+Beneath the touch of Time’s unerring hand,
+Like priceless treasures sinking in the sand.
+
