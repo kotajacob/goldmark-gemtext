@@ -13,12 +13,40 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-func run(srcPath string, wantPath string, config Config) (error, []byte, []byte) {
-	src, err := os.ReadFile(srcPath)
+func setupFiles(srcPath, wantPath string) (err error, src, want []byte) {
+	src, err = os.ReadFile(srcPath)
 	if err != nil {
 		return err, nil, nil
 	}
-	want, err := os.ReadFile(wantPath)
+	want, err = os.ReadFile(wantPath)
+	if err != nil {
+		return err, nil, nil
+	}
+	return nil, src, want
+}
+
+func runNew(srcPath string, wantPath string, option Option) (error, []byte, []byte) {
+	err, src, want := setupFiles(srcPath, wantPath)
+	if err != nil {
+		return err, nil, nil
+	}
+	var buf bytes.Buffer
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			extension.Linkify,
+			extension.Strikethrough,
+		),
+	)
+	md.SetRenderer(New(option))
+	if err := md.Convert(src, &buf); err != nil {
+		return err, nil, nil
+	}
+	got := buf.Bytes()
+	return nil, want, got
+}
+
+func runNewGemRenderer(srcPath string, wantPath string, config Config) (error, []byte, []byte) {
+	err, src, want := setupFiles(srcPath, wantPath)
 	if err != nil {
 		return err, nil, nil
 	}
@@ -41,7 +69,44 @@ func run(srcPath string, wantPath string, config Config) (error, []byte, []byte)
 	return nil, want, got
 }
 
-func TestRender(t *testing.T) {
+func TestNew(t *testing.T) {
+	var tests = []struct {
+		srcPath  string
+		wantPath string
+		option   Option
+	}{
+		{"test_data/render.md", "test_data/renderDefault.gmi",
+			WithHeadingLink(HeadingLinkAuto)},
+		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
+			WithHeadingLink(HeadingLinkOff)},
+		{"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
+			WithEmphasis(EmphasisMarkdown)},
+		{"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
+			WithEmphasis(EmphasisUnicode)},
+		{"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
+			WithCodeSpan(CodeSpanMarkdown)},
+		{"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
+			WithStrikethrough(StrikethroughMarkdown)},
+		{"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
+			WithStrikethrough(StrikethroughUnicode)},
+	}
+
+	for _, test := range tests {
+		err, want, got := runNew(test.srcPath, test.wantPath, test.option)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !cmp.Equal(got, want) {
+			err := os.WriteFile("fail.gmi", got, 0644)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Fatal(fmt.Println(cmp.Diff(got, want)))
+		}
+	}
+}
+
+func TestNewGemRenderer(t *testing.T) {
 	var tests = []struct {
 		srcPath  string
 		wantPath string
@@ -64,7 +129,7 @@ func TestRender(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		err, want, got := run(test.srcPath, test.wantPath, test.config)
+		err, want, got := runNewGemRenderer(test.srcPath, test.wantPath, test.config)
 		if err != nil {
 			t.Fatal(err)
 		}

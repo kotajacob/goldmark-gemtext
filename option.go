@@ -34,7 +34,7 @@ func (o OptionFunc) SetConfig(c *Config) {
 	o(c)
 }
 
-// Pass a completely new config.
+// Pass a completely new config as an option.
 func WithConfig(config *Config) Option {
 	return OptionFunc(func(c *Config) {
 		*c = *config
