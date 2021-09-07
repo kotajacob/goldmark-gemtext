@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"testing/iotest"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/yuin/goldmark"
@@ -139,6 +140,28 @@ func TestNewGemRenderer(t *testing.T) {
 				t.Fatal(err)
 			}
 			t.Fatal(fmt.Println(cmp.Diff(got, want)))
+		}
+	}
+}
+
+func BenchmarkConvert(b *testing.B) {
+	srcPath := "test_data/render.md"
+	src, err := os.ReadFile(srcPath)
+	if err != nil {
+		b.Fatalf("failed to load testing data: %v", err)
+	}
+	buf := new(bytes.Buffer)
+	w := iotest.TruncateWriter(buf, 0) // no need to actually store the data
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			extension.Linkify,
+			extension.Strikethrough,
+		),
+	)
+	md.SetRenderer(New())
+	for i := 0; i < b.N; i++ {
+		if err := md.Convert(src, w); err != nil {
+			b.Fatalf("failed running benchmark: %v", err)
 		}
 	}
 }
