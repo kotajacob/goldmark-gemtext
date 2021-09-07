@@ -9,7 +9,7 @@ cover:
 	go test -cover
 
 profile:
-	go test -run=NONE -bench=BenchmarkConvert -cpuprofile=cpu.out
-	go test -run=NONE -bench=BenchmarkConvert -memprofile=mem.out
+	go test -run=NONE -bench=BenchmarkRender -cpuprofile=cpu.out
+	go test -run=NONE -bench=BenchmarkRender -memprofile=mem.out
 	go tool pprof -svg -output cpu.svg ./goldmark-gemtext.test cpu.out
 	go tool pprof -svg -output mem.svg ./goldmark-gemtext.test mem.out

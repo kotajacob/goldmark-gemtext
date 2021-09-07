@@ -11,6 +11,7 @@ import (
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/util"
 )
 
@@ -144,6 +145,16 @@ func TestNewGemRenderer(t *testing.T) {
 	}
 }
 
+func benchCreateRenderer() goldmark.Markdown {
+	md := goldmark.New(
+		goldmark.WithExtensions(
+			extension.Linkify,
+			extension.Strikethrough,
+		),
+	)
+	md.SetRenderer(New())
+	return md
+}
 func BenchmarkConvert(b *testing.B) {
 	srcPath := "test_data/render.md"
 	src, err := os.ReadFile(srcPath)
@@ -152,16 +163,43 @@ func BenchmarkConvert(b *testing.B) {
 	}
 	buf := new(bytes.Buffer)
 	w := iotest.TruncateWriter(buf, 0) // no need to actually store the data
-	md := goldmark.New(
-		goldmark.WithExtensions(
-			extension.Linkify,
-			extension.Strikethrough,
-		),
-	)
-	md.SetRenderer(New())
+	md := benchCreateRenderer()
 	for i := 0; i < b.N; i++ {
 		if err := md.Convert(src, w); err != nil {
 			b.Fatalf("failed running benchmark: %v", err)
 		}
+	}
+}
+
+func BenchmarkRender(b *testing.B) {
+	srcPath := "test_data/render.md"
+	src, err := os.ReadFile(srcPath)
+	if err != nil {
+		b.Fatalf("failed to load testing data: %v", err)
+	}
+	buf := new(bytes.Buffer)
+	w := iotest.TruncateWriter(buf, 0) // no need to actually store the data
+	md := benchCreateRenderer()
+	reader := text.NewReader(src)
+	par := md.Parser()
+	doc := par.Parse(reader)
+	ren := md.Renderer()
+	for i := 0; i < b.N; i++ {
+		ren.Render(w, src, doc)
+	}
+}
+
+func BenchmarkLinkOnly(b *testing.B) {
+	srcPath := "test_data/render.md"
+	src, err := os.ReadFile(srcPath)
+	if err != nil {
+		b.Fatalf("failed to load testing data: %v", err)
+	}
+	md := benchCreateRenderer()
+	reader := text.NewReader(src)
+	par := md.Parser()
+	doc := par.Parse(reader)
+	for i := 0; i < b.N; i++ {
+		linkOnly(src, doc)
 	}
 }
