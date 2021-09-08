@@ -227,15 +227,10 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 				// add line breaks between links
 				fmt.Fprintf(w, "\n")
 			}
-			var buf bytes.Buffer
-			for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
-				sub := New()
-				if err := sub.Render(&buf, source, chld); err != nil {
-					return ast.WalkStop, err
-				}
+			text, err := linkText(&source, nl)
+			if err != nil {
+				return ast.WalkStop, nil
 			}
-			text := bytes.TrimSpace(buf.Bytes())
-			buf.Reset()
 			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
 			firstLink = false
 		case *ast.AutoLink:
@@ -286,15 +281,10 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				if firstLink {
 					fmt.Fprintf(w, "\n")
 				}
-				var buf bytes.Buffer
-				for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
-					sub := New()
-					if err := sub.Render(&buf, source, chld); err != nil {
-						return ast.WalkStop, err
-					}
+				text, err := linkText(&source, nl)
+				if err != nil {
+					return ast.WalkStop, nil
 				}
-				text := bytes.TrimSpace(buf.Bytes())
-				buf.Reset()
 				fmt.Fprintf(w, "\n")
 				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
 				firstLink = false

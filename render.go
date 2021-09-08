@@ -1,6 +1,8 @@
 package gemtext
 
 import (
+	"bytes"
+
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
@@ -88,4 +90,16 @@ func linkOnly(source []byte, node ast.Node) bool {
 		return true
 	}
 	return false
+}
+
+func linkText(source *[]byte, l *ast.Link) ([]byte, error) {
+	var buf bytes.Buffer
+	for child := l.FirstChild(); child != nil; child = child.NextSibling() {
+		sub := New()
+		if err := sub.Render(&buf, *source, child); err != nil {
+			return nil, err
+		}
+	}
+	text := bytes.TrimSpace(buf.Bytes())
+	return text, nil
 }
