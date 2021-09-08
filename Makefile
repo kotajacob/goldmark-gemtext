@@ -5,8 +5,10 @@ clean:
 
 bench:
 	go test -bench=. -benchmem
+
 cover:
-	go test -cover
+	go test -coverprofile=coverage.out
+	go tool cover -html=coverage.out
 
 profile:
 	go test -run=NONE -bench=BenchmarkRender -cpuprofile=cpu.out
