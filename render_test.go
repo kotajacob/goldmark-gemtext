@@ -46,7 +46,7 @@ inspiration for writing this in the first place.
 		),
 	)
 
-	// Set some options.
+	// set some options
 	var options = []Option{WithHeadingLink(HeadingLinkAuto), WithCodeSpan(CodeSpanMarkdown)}
 
 	md.SetRenderer(New(options...))
