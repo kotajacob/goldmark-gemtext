@@ -14,7 +14,7 @@
 
 => https://twitter.com Complete link heading
 
-=> https://autolinkheading.com 
+=> https://autolinkheading.com
 
 # Multi link heading
 
@@ -28,6 +28,8 @@
 
 --------------------------------------------------------------------------------
 
+## HTML Blocks are disabled
+
 ## Emphasis
 
 abcmnoxyz
@@ -40,7 +42,7 @@ This is italic text
 
 This is italic text
 
-Strikethrough
+S̶t̶r̶i̶k̶e̶t̶h̶r̶o̶u̶g̶h̶
 
 ## Blockquotes
 
