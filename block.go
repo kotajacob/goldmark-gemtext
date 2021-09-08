@@ -275,20 +275,19 @@ func (r *GemRenderer) renderParagraphLinkOff(w util.BufWriter, source []byte, n 
 // it is printed as a link or list of links itself.
 func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
 	if !entering {
-		// loop through links and place them outside paragraph
+		// We can make this check inside !entering, because link only
+		// paragraphs do not contain text. It's a weird quick of goldmark and
+		// this is the work-around.
+		if linkOnly(source, n) {
+			return r.renderParagraphLinkOnly(w, source, n, entering)
+		}
+		// Handle links in non-link-only paragraphs.
 		firstLink := true
 		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 			switch nl := child.(type) {
 			case *ast.Link:
-				if linkOnly(source, n) {
-					if !firstLink {
-						// add line breaks between links in a link only paragraph
-						fmt.Fprintf(w, "\n")
-					}
-				} else {
-					if firstLink {
-						fmt.Fprintf(w, "\n")
-					}
+				if firstLink {
+					fmt.Fprintf(w, "\n")
 				}
 				var buf bytes.Buffer
 				for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
@@ -299,20 +298,12 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				}
 				text := bytes.TrimSpace(buf.Bytes())
 				buf.Reset()
-				if !linkOnly(source, n) {
-					fmt.Fprintf(w, "\n")
-				}
+				fmt.Fprintf(w, "\n")
 				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
 				firstLink = false
 			case *ast.AutoLink:
-				if linkOnly(source, n) {
-					if !firstLink {
-						fmt.Fprintf(w, "\n")
-					}
-				} else {
-					if firstLink {
-						fmt.Fprintf(w, "\n\n")
-					}
+				if firstLink {
+					fmt.Fprintf(w, "\n\n")
 				}
 				fmt.Fprintf(w, "=> %s", nl.Label(source))
 				firstLink = false
