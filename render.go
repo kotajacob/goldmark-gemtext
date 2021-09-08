@@ -126,8 +126,7 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			fmt.Fprintf(w, "### ")
 		}
 
-		switch r.config.HeadingLink {
-		case HeadingLinkOff:
+		if r.config.HeadingLink == HeadingLinkOff || r.config.HeadingLink == HeadingLinkBelow {
 			// Check if it's link only to print the link labels. Link labels
 			// are not printed by links if their parent is link only.
 			if linkOnly(source, n) {
@@ -143,6 +142,25 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 		}
 	} else {
 		fmt.Fprintf(w, "\n\n")
+		if r.config.HeadingLink == HeadingLinkBelow {
+			// Print all links that were in the heading below the heading.
+			var hasLink bool
+			for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+				switch nl := child.(type) {
+				case *ast.Link:
+					hasLink = true
+					fmt.Fprintf(w, "=> %s %s\n", nl.Destination, nl.Text(source))
+				case *ast.AutoLink:
+					hasLink = true
+					fmt.Fprintf(w, "=> %s\n", nl.Label(source))
+				}
+			}
+			if hasLink {
+				// Print an extra newline after the last link, if the heading
+				// had links.
+				fmt.Fprintf(w, "\n")
+			}
+		}
 	}
 	return ast.WalkContinue, nil
 }
@@ -296,6 +314,7 @@ func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.
 					}
 				}
 				var buf bytes.Buffer
+				// TODO: Can I just use nl.Text(source) instead of this shit?
 				for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
 					sub := New()
 					if err := sub.Render(&buf, source, chld); err != nil {
