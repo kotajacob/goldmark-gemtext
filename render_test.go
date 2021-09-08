@@ -79,6 +79,8 @@ func TestNew(t *testing.T) {
 	}{
 		{"test_data/render.md", "test_data/renderDefault.gmi",
 			WithHeadingLink(HeadingLinkAuto)},
+		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
+			WithParagraphLink(ParagraphLinkOff)},
 		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
 			WithHeadingLink(HeadingLinkOff)},
 		{"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
@@ -118,6 +120,8 @@ func TestNewGemRenderer(t *testing.T) {
 	}{
 		{"test_data/render.md", "test_data/renderDefault.gmi",
 			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
+			Config{HeadingLinkAuto, ParagraphLinkOff, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
 			Config{HeadingLinkOff, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",

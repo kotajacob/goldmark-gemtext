@@ -214,8 +214,66 @@ func (r *GemRenderer) renderListItem(w util.BufWriter, source []byte, node ast.N
 	return ast.WalkContinue, nil
 }
 
-func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	n := node.(*ast.Paragraph)
+// renderParagraphLinkOnly is called is used to print a paragraph which
+// contains links (auto or normal) and no text. The linkOnly helper function is
+// used to test this condition. Link only paragraphs are simply renderered as a
+// list of gemini links.
+func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
+	firstLink := true
+	for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+		switch nl := child.(type) {
+		case *ast.Link:
+			if !firstLink {
+				// add line breaks between links
+				fmt.Fprintf(w, "\n")
+			}
+			var buf bytes.Buffer
+			for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
+				sub := New()
+				if err := sub.Render(&buf, source, chld); err != nil {
+					return ast.WalkStop, err
+				}
+			}
+			text := bytes.TrimSpace(buf.Bytes())
+			buf.Reset()
+			if !linkOnly(source, n) {
+				fmt.Fprintf(w, "\n")
+			}
+			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+			firstLink = false
+		case *ast.AutoLink:
+			if !firstLink {
+				// add line breaks between links
+				fmt.Fprintf(w, "\n")
+			}
+			fmt.Fprintf(w, "=> %s", nl.Label(source))
+			firstLink = false
+		}
+	}
+	fmt.Fprintf(w, "\n\n")
+	return ast.WalkContinue, nil
+}
+
+// renderParagraphLinkOff renders the paragraph without printing links below.
+// If the paragraph is "link only" it will print itself as a link since it
+// shouldn't really be considered a paragraph.
+func (r *GemRenderer) renderParagraphLinkOff(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
+	if !entering {
+		// We can make this check inside !entering, because link only
+		// paragraphs do not contain text. It's a weird quick of goldmark and
+		// this is the work-around.
+		if linkOnly(source, n) {
+			return r.renderParagraphLinkOnly(w, source, n, entering)
+		}
+		fmt.Fprintf(w, "\n\n")
+	}
+	return ast.WalkContinue, nil
+}
+
+// renderParagraphLinkBelow is the default paragraph printing mode. Links are
+// printed below the paragraph in a list. If the paragraph contains only links
+// it is printed as a link or list of links itself.
+func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		// loop through links and place them outside paragraph
 		firstLink := true
@@ -263,6 +321,18 @@ func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.
 		fmt.Fprintf(w, "\n\n")
 	}
 	return ast.WalkContinue, nil
+}
+
+func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	n := node.(*ast.Paragraph)
+	switch r.config.ParagraphLink {
+	case ParagraphLinkOff:
+		status, err := r.renderParagraphLinkOff(w, source, n, entering)
+		return status, err
+	default:
+		status, err := r.renderParagraphLinkBelow(w, source, n, entering)
+		return status, err
+	}
 }
 
 func (r *GemRenderer) renderTextBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {

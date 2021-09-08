@@ -78,10 +78,6 @@ const (
 	ParagraphLinkOff ParagraphLink = iota
 	// Print links below paragraph.
 	ParagraphLinkBelow
-	// Print links before next heading or at end of the document.
-	ParagraphLinkSection
-	// Print links at end of the document.
-	ParagraphLinkDocument
 )
 
 // Set Emphasis mode.
