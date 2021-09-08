@@ -196,18 +196,3 @@ func BenchmarkRender(b *testing.B) {
 		ren.Render(w, src, doc)
 	}
 }
-
-func BenchmarkLinkOnly(b *testing.B) {
-	srcPath := "test_data/render.md"
-	src, err := os.ReadFile(srcPath)
-	if err != nil {
-		b.Fatalf("failed to load testing data: %v", err)
-	}
-	md := benchCreateRenderer()
-	reader := text.NewReader(src)
-	par := md.Parser()
-	doc := par.Parse(reader)
-	for i := 0; i < b.N; i++ {
-		linkOnly(src, doc)
-	}
-}
