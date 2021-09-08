@@ -236,9 +236,6 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 			}
 			text := bytes.TrimSpace(buf.Bytes())
 			buf.Reset()
-			if !linkOnly(source, n) {
-				fmt.Fprintf(w, "\n")
-			}
 			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
 			firstLink = false
 		case *ast.AutoLink:
