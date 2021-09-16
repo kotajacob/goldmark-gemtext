@@ -60,7 +60,11 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			}
 		}
 	} else {
-		fmt.Fprintf(w, "\n\n")
+		if r.config.HeadingSpace == HeadingSpaceSingle {
+			fmt.Fprintf(w, "\n")
+		} else {
+			fmt.Fprintf(w, "\n\n")
+		}
 		if r.config.HeadingLink == HeadingLinkBelow {
 			// Print all links that were in the heading below the heading.
 			var hasLink bool

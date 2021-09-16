@@ -3,6 +3,7 @@ package gemtext
 // Config has configurations for the gemini renderer.
 type Config struct {
 	HeadingLink   HeadingLink
+	HeadingSpace  HeadingSpace
 	ParagraphLink ParagraphLink
 	Emphasis      Emphasis
 	Strikethrough Strikethrough
@@ -13,6 +14,7 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		HeadingLink:   HeadingLinkAuto,
+		HeadingSpace:  HeadingSpaceDouble,
 		ParagraphLink: ParagraphLinkBelow,
 		Emphasis:      EmphasisOff,
 		Strikethrough: StrikethroughOff,
@@ -60,6 +62,26 @@ const (
 	HeadingLinkAuto
 	// Print all links below heading.
 	HeadingLinkBelow
+)
+
+// Set HeadingSpace mode.
+func WithHeadingSpace(val HeadingSpace) Option {
+	return OptionFunc(func(c *Config) {
+		c.HeadingSpace = val
+	})
+}
+
+// HeadingSpace is an emun config option that controls how many newline
+// characters are entered after a heading.
+type HeadingSpace uint8
+
+const (
+	// Enter just a single newline after the heading. Content will be smacked
+	// up right below it.
+	HeadingSpaceSingle HeadingSpace = iota
+	// Enter two newlines below the heading. Giving content some nice breathing
+	// room.
+	HeadingSpaceDouble
 )
 
 // Set ParagraphLink mode.

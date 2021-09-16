@@ -135,6 +135,8 @@ func TestNew(t *testing.T) {
 	}{
 		{"test_data/render.md", "test_data/renderDefault.gmi",
 			WithHeadingLink(HeadingLinkAuto)},
+		{"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
+			WithHeadingSpace(HeadingSpaceSingle)},
 		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
 			WithParagraphLink(ParagraphLinkOff)},
 		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
@@ -175,23 +177,25 @@ func TestNewGemRenderer(t *testing.T) {
 		config   Config
 	}{
 		{"test_data/render.md", "test_data/renderDefault.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+		{"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceSingle, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkOff, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkOff, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
-			Config{HeadingLinkOff, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkOff, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
-			Config{HeadingLinkBelow, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkBelow, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisMarkdown, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisMarkdown, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisUnicode, StrikethroughOff, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisUnicode, StrikethroughOff, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanMarkdown}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanMarkdown}},
 		{"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughMarkdown, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughMarkdown, CodeSpanOff}},
 		{"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
-			Config{HeadingLinkAuto, ParagraphLinkBelow, EmphasisOff, StrikethroughUnicode, CodeSpanOff}},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughUnicode, CodeSpanOff}},
 	}
 
 	for _, test := range tests {

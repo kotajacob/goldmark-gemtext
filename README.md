@@ -46,3 +46,8 @@ md.SetRenderer(New(options...))
 _ = md.Convert([]byte(src), &buf) // ignoring errors for example
 fmt.Println(buf.String())
 ```
+
+There's a bunch of options. You can read them in the
+[documentaton](https://godocs.io/git.sr.ht/~kota/goldmark-gemtext). If you have
+suggestions, issues, or anything else drop an email in the [mailing
+list](https://lists.sr.ht/~kota/gemgen).
