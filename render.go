@@ -86,7 +86,7 @@ func linkOnly(source []byte, node ast.Node) bool {
 			}
 		}
 	}
-	if hasLink == true && hasText == false {
+	if hasLink && !hasText {
 		return true
 	}
 	return false
