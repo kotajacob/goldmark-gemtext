@@ -15,7 +15,7 @@ func (r *GemRenderer) renderAutoLink(w util.BufWriter, source []byte, node ast.N
 		if linkOnly(source, node.Parent()) {
 			return ast.WalkSkipChildren, nil
 		} else {
-			fmt.Fprintf(w, string(n.Label(source)))
+			fmt.Fprint(w, string(n.Label(source)))
 		}
 	}
 	return ast.WalkContinue, nil

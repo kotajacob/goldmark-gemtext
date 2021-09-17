@@ -193,7 +193,7 @@ func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node,
 			lines := bytes.SplitAfter(text, []byte{'\n'})
 			for i, line := range lines {
 				if i > 0 && len(line) > 0 && line[0] != '\n' {
-					fmt.Fprintf(w, indent)
+					fmt.Fprint(w, indent)
 				}
 				fmt.Fprintf(w, "%s", line)
 			}
