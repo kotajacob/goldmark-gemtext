@@ -67,7 +67,7 @@ func (r *GemRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node
 		fmt.Fprintf(w, "=> ")
 		fmt.Fprintf(w, "%s ", n.Destination)
 	} else {
-		if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
+		if n.NextSibling() != nil && n.FirstChild() != nil {
 			fmt.Fprintf(w, "\n")
 		}
 	}

@@ -320,7 +320,7 @@ func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.
 func (r *GemRenderer) renderTextBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.TextBlock)
 	if !entering {
-		if _, ok := n.NextSibling().(ast.Node); ok && n.FirstChild() != nil {
+		if n.NextSibling() != nil && n.FirstChild() != nil {
 			fmt.Fprintf(w, "\n")
 		}
 	}
