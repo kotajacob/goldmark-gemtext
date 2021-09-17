@@ -16,7 +16,7 @@ import (
 )
 
 func ExampleNew() {
-	var src = `
+	src := `
 # This is a heading
 
 This is a [paragraph](https://en.wikipedia.org/wiki/Paragraph) with [some
@@ -47,7 +47,7 @@ inspiration for writing this in the first place.
 	)
 
 	// set some options
-	var options = []Option{WithHeadingLink(HeadingLinkAuto), WithCodeSpan(CodeSpanMarkdown)}
+	options := []Option{WithHeadingLink(HeadingLinkAuto), WithCodeSpan(CodeSpanMarkdown)}
 
 	md.SetRenderer(New(options...))
 	_ = md.Convert([]byte(src), &buf) // ignoring errors for example
@@ -71,22 +71,19 @@ inspiration for writing this in the first place.
 	// => https://phoebefuckingbridgers.com/ Phoebe Bridgers
 }
 
-func setupFiles(srcPath, wantPath string) (err error, src, want []byte) {
+func setupFiles(srcPath, wantPath string) (src, want []byte, err error) {
 	src, err = os.ReadFile(srcPath)
 	if err != nil {
-		return err, nil, nil
+		return src, nil, err
 	}
 	want, err = os.ReadFile(wantPath)
-	if err != nil {
-		return err, nil, nil
-	}
-	return nil, src, want
+	return src, want, err
 }
 
-func runNew(srcPath string, wantPath string, option Option) (error, []byte, []byte) {
-	err, src, want := setupFiles(srcPath, wantPath)
+func runNew(srcPath string, wantPath string, option Option) ([]byte, []byte, error) {
+	src, want, err := setupFiles(srcPath, wantPath)
 	if err != nil {
-		return err, nil, nil
+		return nil, nil, err
 	}
 	var buf bytes.Buffer
 	md := goldmark.New(
@@ -97,16 +94,16 @@ func runNew(srcPath string, wantPath string, option Option) (error, []byte, []by
 	)
 	md.SetRenderer(New(option))
 	if err := md.Convert(src, &buf); err != nil {
-		return err, nil, nil
+		return nil, nil, err
 	}
 	got := buf.Bytes()
-	return nil, want, got
+	return want, got, err
 }
 
-func runNewGemRenderer(srcPath string, wantPath string, config Config) (error, []byte, []byte) {
-	err, src, want := setupFiles(srcPath, wantPath)
+func runNewGemRenderer(srcPath string, wantPath string, config Config) ([]byte, []byte, error) {
+	src, want, err := setupFiles(srcPath, wantPath)
 	if err != nil {
-		return err, nil, nil
+		return nil, nil, err
 	}
 	var buf bytes.Buffer
 	md := goldmark.New(
@@ -121,42 +118,62 @@ func runNewGemRenderer(srcPath string, wantPath string, config Config) (error, [
 			renderer.WithNodeRenderers(util.Prioritized(ar, 1000))))
 
 	if err := md.Convert(src, &buf); err != nil {
-		return err, nil, nil
+		return nil, nil, err
 	}
 	got := buf.Bytes()
-	return nil, want, got
+	return want, got, err
 }
 
 func TestNew(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		srcPath  string
 		wantPath string
 		option   Option
 	}{
-		{"test_data/render.md", "test_data/renderDefault.gmi",
-			WithHeadingLink(HeadingLinkAuto)},
-		{"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
-			WithHeadingSpace(HeadingSpaceSingle)},
-		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
-			WithParagraphLink(ParagraphLinkOff)},
-		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
-			WithHeadingLink(HeadingLinkOff)},
-		{"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
-			WithHeadingLink(HeadingLinkBelow)},
-		{"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
-			WithEmphasis(EmphasisMarkdown)},
-		{"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
-			WithEmphasis(EmphasisUnicode)},
-		{"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
-			WithCodeSpan(CodeSpanMarkdown)},
-		{"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
-			WithStrikethrough(StrikethroughMarkdown)},
-		{"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
-			WithStrikethrough(StrikethroughUnicode)},
+		{
+			"test_data/render.md", "test_data/renderDefault.gmi",
+			WithHeadingLink(HeadingLinkAuto),
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
+			WithHeadingSpace(HeadingSpaceSingle),
+		},
+		{
+			"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
+			WithParagraphLink(ParagraphLinkOff),
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
+			WithHeadingLink(HeadingLinkOff),
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
+			WithHeadingLink(HeadingLinkBelow),
+		},
+		{
+			"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
+			WithEmphasis(EmphasisMarkdown),
+		},
+		{
+			"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
+			WithEmphasis(EmphasisUnicode),
+		},
+		{
+			"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
+			WithCodeSpan(CodeSpanMarkdown),
+		},
+		{
+			"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
+			WithStrikethrough(StrikethroughMarkdown),
+		},
+		{
+			"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
+			WithStrikethrough(StrikethroughUnicode),
+		},
 	}
 
 	for _, test := range tests {
-		err, want, got := runNew(test.srcPath, test.wantPath, test.option)
+		want, got, err := runNew(test.srcPath, test.wantPath, test.option)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -171,35 +188,55 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewGemRenderer(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		srcPath  string
 		wantPath string
 		config   Config
 	}{
-		{"test_data/render.md", "test_data/renderDefault.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceSingle, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkOff, EmphasisOff, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
-			Config{HeadingLinkOff, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
-			Config{HeadingLinkBelow, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisMarkdown, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisUnicode, StrikethroughOff, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanMarkdown}},
-		{"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughMarkdown, CodeSpanOff}},
-		{"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughUnicode, CodeSpanOff}},
+		{
+			"test_data/render.md", "test_data/renderDefault.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadingSpaceSingle.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceSingle, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderParagraphLinkOff.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkOff, EmphasisOff, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
+			Config{HeadingLinkOff, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderHeadLinkBelow.gmi",
+			Config{HeadingLinkBelow, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderEmphasisMarkdown.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisMarkdown, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderEmphasisUnicode.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisUnicode, StrikethroughOff, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderCodeSpanMarkdown.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanMarkdown},
+		},
+		{
+			"test_data/render.md", "test_data/renderStrikethroughMarkdown.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughMarkdown, CodeSpanOff},
+		},
+		{
+			"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughUnicode, CodeSpanOff},
+		},
 	}
 
 	for _, test := range tests {
-		err, want, got := runNewGemRenderer(test.srcPath, test.wantPath, test.config)
+		want, got, err := runNewGemRenderer(test.srcPath, test.wantPath, test.config)
 		if err != nil {
 			t.Fatal(err)
 		}
