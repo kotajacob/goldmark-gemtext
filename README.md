@@ -1,9 +1,9 @@
 # goldmark-gemtext [![godocs.io](https://godocs.io/git.sr.ht/~kota/goldmark-gemtext?status.svg)](https://godocs.io/git.sr.ht/~kota/goldmark-gemtext) [![builds.sr.ht status](https://builds.sr.ht/~kota/goldmark-gemtext.svg)](https://builds.sr.ht/~kota/goldmark-gemtext)
 
 A gemtext renderer for [goldmark](https://github.com/yuin/goldmark). You can use
-this library to parse commonmark markdown (with additional support for autolinks
-and strikethrough) and convert it into nice clean looking gemtext with a few
-options. This library is used to do the heavy lifting in
+this library to parse commonmark markdown (with support for autolinks and
+strikethrough) and convert it into nice clean looking gemtext (with some
+options). This library does the heavy lifting for
 [gemgen](https://git.sr.ht/~kota/gemgen).
 
 You create a renderer with New(option...) and pass in options:
