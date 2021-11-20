@@ -122,6 +122,14 @@ Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
 
 Fabric has an amazing community of dedicated and brilliant modders who actively embrace and support open source. Many of the other modding platforms of the past were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities. This is the primary reason I switched to fabric, but it also just so happens to have the fastest and fanciest server mods around.
 
+## Wiki link tests
+
+=> kota.nz kota.nz
+
+=> hello.com world
+
+Paragraph with a few links in it.
+
 ## Linkparagraphs
 
 => https://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88

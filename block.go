@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	wast "git.sr.ht/~kota/goldmark-wiki/ast"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/util"
 )
@@ -22,12 +23,14 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 				// In Auto mode, link only headings prints their first link then exit.
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 					switch nl := child.(type) {
+					// Print the first link we find, then skip then rest of the node.
 					case *ast.Link:
-						// Print the first link we find, then skip then rest of the node.
+						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
+						return ast.WalkSkipChildren, nil
+					case *wast.Wiki:
 						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
 						return ast.WalkSkipChildren, nil
 					case *ast.AutoLink:
-						// Print the first link we find, then skip then rest of the node.
 						fmt.Fprintf(w, "=> %s", nl.Label(source))
 						return ast.WalkSkipChildren, nil
 					}
@@ -53,6 +56,8 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 					switch nl := child.(type) {
 					case *ast.Link:
 						fmt.Fprintf(w, "%s", nl.Text(source))
+					case *wast.Wiki:
+						fmt.Fprintf(w, "%s", nl.Text(source))
 					case *ast.AutoLink:
 						fmt.Fprintf(w, "%s", nl.Label(source))
 					}
@@ -71,6 +76,9 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			for child := n.FirstChild(); child != nil; child = child.NextSibling() {
 				switch nl := child.(type) {
 				case *ast.Link:
+					hasLink = true
+					fmt.Fprintf(w, "=> %s %s\n", nl.Destination, nl.Text(source))
+				case *wast.Wiki:
 					hasLink = true
 					fmt.Fprintf(w, "=> %s %s\n", nl.Destination, nl.Text(source))
 				case *ast.AutoLink:
@@ -231,7 +239,18 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 				// add line breaks between links
 				fmt.Fprintf(w, "\n")
 			}
-			text, err := linkText(&source, nl)
+			text, err := nodeText(&source, nl)
+			if err != nil {
+				return ast.WalkStop, nil
+			}
+			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+			firstLink = false
+		case *wast.Wiki:
+			if !firstLink {
+				// add line breaks between links
+				fmt.Fprintf(w, "\n")
+			}
+			text, err := nodeText(&source, nl)
 			if err != nil {
 				return ast.WalkStop, nil
 			}
@@ -285,7 +304,18 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				if firstLink {
 					fmt.Fprintf(w, "\n")
 				}
-				text, err := linkText(&source, nl)
+				text, err := nodeText(&source, nl)
+				if err != nil {
+					return ast.WalkStop, nil
+				}
+				fmt.Fprintf(w, "\n")
+				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+				firstLink = false
+			case *wast.Wiki:
+				if firstLink {
+					fmt.Fprintf(w, "\n")
+				}
+				text, err := nodeText(&source, nl)
 				if err != nil {
 					return ast.WalkStop, nil
 				}

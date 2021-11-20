@@ -140,6 +140,18 @@ Fabric has an amazing community of dedicated and brilliant modders who actively 
 => https://jellysquid.me/projects/ brilliant
 => https://web.archive.org/web/20201125032822/ were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities.
 
+## Wiki link tests
+
+=> kota.nz kota.nz
+
+=> hello.com world
+
+Paragraph with a few links in it.
+
+=> with with
+=> few few
+=> in in
+
 ## Linkparagraphs
 
 => https://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88

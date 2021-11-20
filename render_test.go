@@ -7,6 +7,7 @@ import (
 	"testing"
 	"testing/iotest"
 
+	wiki "git.sr.ht/~kota/goldmark-wiki"
 	"github.com/google/go-cmp/cmp"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
@@ -88,6 +89,7 @@ func runNew(srcPath string, wantPath string, option Option) ([]byte, []byte, err
 	var buf bytes.Buffer
 	md := goldmark.New(
 		goldmark.WithExtensions(
+			wiki.Wiki,
 			extension.Linkify,
 			extension.Strikethrough,
 		),
@@ -108,6 +110,7 @@ func runNewGemRenderer(srcPath string, wantPath string, config Config) ([]byte, 
 	var buf bytes.Buffer
 	md := goldmark.New(
 		goldmark.WithExtensions(
+			wiki.Wiki,
 			extension.Linkify,
 			extension.Strikethrough,
 		),
@@ -253,6 +256,7 @@ func TestNewGemRenderer(t *testing.T) {
 func benchCreateRenderer() goldmark.Markdown {
 	md := goldmark.New(
 		goldmark.WithExtensions(
+			wiki.Wiki,
 			extension.Linkify,
 			extension.Strikethrough,
 		),

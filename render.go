@@ -3,6 +3,7 @@ package gemtext
 import (
 	"bytes"
 
+	wast "git.sr.ht/~kota/goldmark-wiki/ast"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
@@ -65,6 +66,7 @@ func (r *GemRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 
 	// extras
 	reg.Register(east.KindStrikethrough, r.renderStrikethrough)
+	reg.Register(wast.KindWiki, r.renderWiki)
 }
 
 // linkOnly is a helper function that returns true is a node's subnodes have
@@ -80,6 +82,8 @@ func linkOnly(source []byte, node ast.Node) bool {
 			hasLink = true
 		case *ast.AutoLink:
 			hasLink = true
+		case *wast.Wiki:
+			hasLink = true
 		case *ast.Text:
 			if string(nl.Segment.Value(source)) != "" {
 				hasText = true
@@ -92,9 +96,9 @@ func linkOnly(source []byte, node ast.Node) bool {
 	return false
 }
 
-func linkText(source *[]byte, l *ast.Link) ([]byte, error) {
+func nodeText(source *[]byte, node ast.Node) ([]byte, error) {
 	var buf bytes.Buffer
-	for child := l.FirstChild(); child != nil; child = child.NextSibling() {
+	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
 		sub := New()
 		if err := sub.Render(&buf, *source, child); err != nil {
 			return nil, err

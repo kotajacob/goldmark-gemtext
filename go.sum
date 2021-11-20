@@ -1,5 +1,7 @@
 git.sr.ht/~kota/fuckery v0.2.0 h1:0JfnSMiQWFVFdGplolb2ZuRqDQLG5uAzDmH/oSaRj9Y=
 git.sr.ht/~kota/fuckery v0.2.0/go.mod h1:UuYM/CTzL6F/FYB/uulUV1ceymM5NSJv2Qif3VVj/s8=
+git.sr.ht/~kota/goldmark-wiki v0.0.0-20211119234413-891f759dc3aa h1:4JHg1p9hfnZEJtVjmhFhvYV4RO12mMDQf6NFolFJDzo=
+git.sr.ht/~kota/goldmark-wiki v0.0.0-20211119234413-891f759dc3aa/go.mod h1:7bNFInCQWKDjV6b8qsLDwQ/q5XrVMjrACQjOnJGXe/4=
 github.com/google/go-cmp v0.5.6 h1:BKbKCqvP6I+rmFHt06ZmyQtvB8xAkWdhFyr0ZUNZcxQ=
 github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/yuin/goldmark v1.4.4 h1:zNWRjYUW32G9KirMXYHQHVNFkXvMI7LpgNW2AgYAoIs=

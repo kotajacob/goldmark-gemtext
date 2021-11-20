@@ -9,6 +9,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// renderStrikethrough writes strikethrough text based on a few config options.
 func (r *GemRenderer) renderStrikethrough(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*east.Strikethrough)
 	if entering {
@@ -24,6 +25,18 @@ func (r *GemRenderer) renderStrikethrough(w util.BufWriter, source []byte, node 
 		case StrikethroughMarkdown:
 			fmt.Fprintf(w, "~~")
 		}
+	}
+	return ast.WalkContinue, nil
+}
+
+// renderWiki writes a wiki style link in gemtext.
+// Similar to links and autolinks the node is skipped if the parent node
+// contains only links. We use the parent node (paragraph or heading) to do the
+// actual heavy lifting.
+func (r *GemRenderer) renderWiki(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
+	// skip if the parent node contains only links
+	if linkOnly(source, node.Parent()) {
+		return ast.WalkSkipChildren, nil
 	}
 	return ast.WalkContinue, nil
 }
