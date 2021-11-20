@@ -6,6 +6,12 @@ strikethrough) and convert it into nice clean looking gemtext (with some
 options). This library does the heavy lifting for
 [gemgen](https://git.sr.ht/~kota/gemgen).
 
+Several markdown extensions are supported and can be enabled as goldmark parser
+extensions. The following are currently supported:
+[extension.Linkify](https://github.com/yuin/goldmark#built-in-extensions),
+[extension.Strikethrough](https://github.com/yuin/goldmark#built-in-extensions),
+and [wiki.Wiki](https://git.sr.ht/~kota/goldmark-wiki).
+
 You create a renderer with New(option...) and pass in options:
 ```go
 var src = `
