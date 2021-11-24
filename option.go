@@ -1,24 +1,28 @@
 package gemtext
 
+const HR = ""
+
 // Config has configurations for the gemini renderer.
 type Config struct {
-	HeadingLink   HeadingLink
-	HeadingSpace  HeadingSpace
-	ParagraphLink ParagraphLink
-	Emphasis      Emphasis
-	Strikethrough Strikethrough
-	CodeSpan      CodeSpan
+	HeadingLink    HeadingLink
+	HeadingSpace   HeadingSpace
+	ParagraphLink  ParagraphLink
+	Emphasis       Emphasis
+	Strikethrough  Strikethrough
+	CodeSpan       CodeSpan
+	HorizontalRule string
 }
 
 // NewConfig returns a new Config with defaults.
 func NewConfig() *Config {
 	return &Config{
-		HeadingLink:   HeadingLinkAuto,
-		HeadingSpace:  HeadingSpaceDouble,
-		ParagraphLink: ParagraphLinkBelow,
-		Emphasis:      EmphasisOff,
-		Strikethrough: StrikethroughOff,
-		CodeSpan:      CodeSpanOff,
+		HeadingLink:    HeadingLinkAuto,
+		HeadingSpace:   HeadingSpaceDouble,
+		ParagraphLink:  ParagraphLinkBelow,
+		Emphasis:       EmphasisOff,
+		Strikethrough:  StrikethroughOff,
+		CodeSpan:       CodeSpanOff,
+		HorizontalRule: HR,
 	}
 }
 

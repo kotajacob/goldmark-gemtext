@@ -360,9 +360,7 @@ func (r *GemRenderer) renderTextBlock(w util.BufWriter, source []byte, node ast.
 func (r *GemRenderer) renderThematicBreak(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	// TODO: make this configurable
 	if entering {
-		for i := 0; i < 80; i++ {
-			fmt.Fprintf(w, "-")
-		}
+		fmt.Fprintf(w, r.config.HorizontalRule)
 	} else {
 		fmt.Fprintf(w, "\n\n")
 	}
