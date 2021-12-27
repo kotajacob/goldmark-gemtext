@@ -173,6 +173,10 @@ func TestNew(t *testing.T) {
 			"test_data/render.md", "test_data/renderStrikethroughUnicode.gmi",
 			WithStrikethrough(StrikethroughUnicode),
 		},
+		{
+			"test_data/render.md", "test_data/renderHorizontalRule.gmi",
+			WithHorizontalRule("+++"),
+		},
 	}
 
 	for _, test := range tests {

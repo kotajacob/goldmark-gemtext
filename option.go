@@ -172,3 +172,10 @@ const (
 	// Print markdown codespan symbols.
 	CodeSpanMarkdown
 )
+
+// Set HorizontalRule string.
+func WithHorizontalRule(val string) Option {
+	return OptionFunc(func(c *Config) {
+		c.HorizontalRule = val
+	})
+}
