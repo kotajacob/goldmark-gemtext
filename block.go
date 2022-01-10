@@ -215,25 +215,6 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 			if linkPrint(w, source, child, r.config.LinkReplacers) {
 				fmt.Fprintf(w, "\n")
 			}
-			// switch nl := child.(type) {
-			// case *ast.Link:
-			// 	text, err := nodeText(source, nl)
-			// 	if err != nil {
-			// 		return ast.WalkStop, nil
-			// 	}
-			// 	fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-			// 	fmt.Fprintf(w, "\n")
-			// case *wast.Wiki:
-			// 	text, err := nodeText(source, nl)
-			// 	if err != nil {
-			// 		return ast.WalkStop, nil
-			// 	}
-			// 	fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-			// 	fmt.Fprintf(w, "\n")
-			// case *ast.AutoLink:
-			// 	fmt.Fprintf(w, "=> %s", nl.Label(source))
-			// 	fmt.Fprintf(w, "\n")
-			// }
 		}
 		fmt.Fprintf(w, "\n")
 	}
