@@ -234,7 +234,7 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 				// Add line breaks between links.
 				fmt.Fprintf(w, "\n")
 			}
-			text, err := nodeText(&source, nl)
+			text, err := nodeText(source, nl)
 			if err != nil {
 				return ast.WalkStop, nil
 			}
@@ -245,7 +245,7 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 				// Add line breaks between links.
 				fmt.Fprintf(w, "\n")
 			}
-			text, err := nodeText(&source, nl)
+			text, err := nodeText(source, nl)
 			if err != nil {
 				return ast.WalkStop, nil
 			}
@@ -299,7 +299,7 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				if firstLink {
 					fmt.Fprintf(w, "\n")
 				}
-				text, err := nodeText(&source, nl)
+				text, err := nodeText(source, nl)
 				if err != nil {
 					return ast.WalkStop, nil
 				}
@@ -310,7 +310,7 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				if firstLink {
 					fmt.Fprintf(w, "\n")
 				}
-				text, err := nodeText(&source, nl)
+				text, err := nodeText(source, nl)
 				if err != nil {
 					return ast.WalkStop, nil
 				}

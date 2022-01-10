@@ -96,11 +96,14 @@ func linkOnly(source []byte, node ast.Node) bool {
 	return false
 }
 
-func nodeText(source *[]byte, node ast.Node) ([]byte, error) {
+// nodeText is a helper function that recursively creates and runs a renderer
+// for a specific node. This is slower, but is the only way to handle some link
+// text edge cases (multiline links, emphasis markings in link test, etc).
+func nodeText(source []byte, node ast.Node) ([]byte, error) {
 	var buf bytes.Buffer
 	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
 		sub := New()
-		if err := sub.Render(&buf, *source, child); err != nil {
+		if err := sub.Render(&buf, source, child); err != nil {
 			return nil, err
 		}
 	}
