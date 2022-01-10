@@ -176,10 +176,6 @@ func (r *GemRenderer) renderHTMLBlock(w util.BufWriter, source []byte, node ast.
 func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.List)
 	if entering {
-		start := n.Start
-		if start == 0 {
-			start = 1
-		}
 		indent := "  "
 
 		var buf bytes.Buffer
