@@ -10,7 +10,7 @@ import (
 )
 
 func (r *GemRenderer) renderDocument(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	// nothing to do
+	// Nothing to do.
 	return ast.WalkContinue, nil
 }
 
@@ -169,7 +169,7 @@ func (r *GemRenderer) renderFencedCodeBlock(w util.BufWriter, source []byte, nod
 }
 
 func (r *GemRenderer) renderHTMLBlock(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	// skip html block - can't be used
+	// Skip html block; can't be used.
 	return ast.WalkSkipChildren, nil
 }
 
@@ -179,7 +179,6 @@ func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node,
 		indent := "  "
 
 		var buf bytes.Buffer
-		// all ListItems
 		for nl := n.FirstChild(); nl != nil; nl = nl.NextSibling() {
 			for chld := nl.FirstChild(); chld != nil; chld = chld.NextSibling() {
 				sub := New()
@@ -188,7 +187,7 @@ func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node,
 				}
 			}
 
-			// print list item
+			// Print list item.
 			fmt.Fprintf(w, "* ")
 
 			text := bytes.TrimSpace(buf.Bytes())
@@ -218,7 +217,7 @@ func (r *GemRenderer) renderList(w util.BufWriter, source []byte, node ast.Node,
 }
 
 func (r *GemRenderer) renderListItem(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	// nothing to do
+	// Nothing to do.
 	return ast.WalkContinue, nil
 }
 
@@ -232,7 +231,7 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 		switch nl := child.(type) {
 		case *ast.Link:
 			if !firstLink {
-				// add line breaks between links
+				// Add line breaks between links.
 				fmt.Fprintf(w, "\n")
 			}
 			text, err := nodeText(&source, nl)
@@ -243,7 +242,7 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 			firstLink = false
 		case *wast.Wiki:
 			if !firstLink {
-				// add line breaks between links
+				// Add line breaks between links.
 				fmt.Fprintf(w, "\n")
 			}
 			text, err := nodeText(&source, nl)
@@ -254,7 +253,7 @@ func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n
 			firstLink = false
 		case *ast.AutoLink:
 			if !firstLink {
-				// add line breaks between links
+				// Add line breaks between links.
 				fmt.Fprintf(w, "\n")
 			}
 			fmt.Fprintf(w, "=> %s", nl.Label(source))
@@ -354,7 +353,6 @@ func (r *GemRenderer) renderTextBlock(w util.BufWriter, source []byte, node ast.
 }
 
 func (r *GemRenderer) renderThematicBreak(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	// TODO: make this configurable
 	if entering {
 		fmt.Fprintf(w, r.config.HorizontalRule)
 	} else {

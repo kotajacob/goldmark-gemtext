@@ -1,5 +1,6 @@
 package gemtext
 
+// HR is the default HorizontalRule string used in NewConfig.
 const HR = ""
 
 // Config has configurations for the gemini renderer.

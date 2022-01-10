@@ -75,7 +75,7 @@ func (r *GemRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 func linkOnly(source []byte, node ast.Node) bool {
 	var hasLink bool = false
 	var hasText bool = false
-	// check if the paragraph contains ONLY links
+	// Check if the paragraph contains ONLY links.
 	for child := node.FirstChild(); child != nil; child = child.NextSibling() {
 		switch nl := child.(type) {
 		case *ast.Link:
