@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"regexp"
 	"testing"
 	"testing/iotest"
 
@@ -177,6 +178,16 @@ func TestNew(t *testing.T) {
 			"test_data/render.md", "test_data/renderHorizontalRule.gmi",
 			WithHorizontalRule("+++"),
 		},
+		{
+			"test_data/render.md", "test_data/renderLinkReplacers.gmi",
+			WithLinkReplacers([]LinkReplacer{
+				{
+					LinkWiki,
+					regexp.MustCompile(`nz`),
+					"org",
+				},
+			}),
+		},
 	}
 
 	for _, test := range tests {
@@ -189,7 +200,7 @@ func TestNew(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			t.Fatal(fmt.Println(cmp.Diff(got, want)))
+			t.Fatal(cmp.Diff(got, want))
 		}
 	}
 }
@@ -202,7 +213,7 @@ func TestNewGemRenderer(t *testing.T) {
 	}{
 		{
 			"test_data/render.md", "test_data/renderDefault.gmi",
-			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff, HR},
+			Config{HeadingLinkAuto, HeadingSpaceDouble, ParagraphLinkBelow, EmphasisOff, StrikethroughOff, CodeSpanOff, HR, []LinkReplacer{}},
 		},
 	}
 

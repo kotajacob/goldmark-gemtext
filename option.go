@@ -1,5 +1,7 @@
 package gemtext
 
+import "regexp"
+
 // HR is the default HorizontalRule string used in NewConfig.
 const HR = ""
 
@@ -12,6 +14,7 @@ type Config struct {
 	Strikethrough  Strikethrough
 	CodeSpan       CodeSpan
 	HorizontalRule string
+	LinkReplacers  []LinkReplacer
 }
 
 // NewConfig returns a new Config with defaults.
@@ -24,6 +27,7 @@ func NewConfig() *Config {
 		Strikethrough:  StrikethroughOff,
 		CodeSpan:       CodeSpanOff,
 		HorizontalRule: HR,
+		LinkReplacers:  []LinkReplacer{},
 	}
 }
 
@@ -178,5 +182,41 @@ const (
 func WithHorizontalRule(val string) Option {
 	return OptionFunc(func(c *Config) {
 		c.HorizontalRule = val
+	})
+}
+
+// LinkReplacer is used to modify links with regular expressions. This could be
+// used to change links that end in .md to .gmi.
+type LinkReplacer struct {
+	Type        LinkType
+	Regex       *regexp.Regexp
+	Replacement string
+}
+
+// LinkType is an enum describing a type of markdown link. A LinkReplacer can be
+// applied to one or multiple link types. This makes it easy to have a regular
+// expression only apply to wiki style links, but ignore traditional markdown
+// links and auto links for example.
+type LinkType uint8
+
+const (
+	// LinkMarkdown is a traditional markdown link using brackets and
+	// parenthesis.
+	LinkMarkdown LinkType = iota
+	// LinkAuto is a markdown link that was automatically detected with
+	// heuristics. This type of link must be supported by your goldmark parser
+	// to be used. There's an official extension that adds it.
+	LinkAuto
+	// LinkWiki is a wiki style link. This is a non-standard, but popular syntax
+	// used in some wiki's that would otherwise be compliant markdown. I wrote a
+	// goldmark extension to detect this type of link:
+	// https://git.sr.ht/~kota/goldmark-wiki
+	LinkWiki
+)
+
+// Set LinkReplacers.
+func WithLinkReplacers(r []LinkReplacer) Option {
+	return OptionFunc(func(c *Config) {
+		c.LinkReplacers = r
 	})
 }

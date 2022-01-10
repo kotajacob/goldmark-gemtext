@@ -22,16 +22,7 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			if linkOnly(source, n) {
 				// In Auto mode, link only headings prints their first link then exit.
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-					switch nl := child.(type) {
-					// Print the first link we find, then skip then rest of the node.
-					case *ast.Link:
-						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
-						return ast.WalkSkipChildren, nil
-					case *wast.Wiki:
-						fmt.Fprintf(w, "=> %s %s", nl.Destination, nl.Text(source))
-						return ast.WalkSkipChildren, nil
-					case *ast.AutoLink:
-						fmt.Fprintf(w, "=> %s", nl.Label(source))
+					if linkPrint(w, source, child, r.config.LinkReplacers) {
 						return ast.WalkSkipChildren, nil
 					}
 				}
@@ -74,16 +65,9 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			// Print all links that were in the heading below the heading.
 			var hasLink bool
 			for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-				switch nl := child.(type) {
-				case *ast.Link:
+				if linkPrint(w, source, child, r.config.LinkReplacers) {
+					fmt.Fprint(w, "\n")
 					hasLink = true
-					fmt.Fprintf(w, "=> %s %s\n", nl.Destination, nl.Text(source))
-				case *wast.Wiki:
-					hasLink = true
-					fmt.Fprintf(w, "=> %s %s\n", nl.Destination, nl.Text(source))
-				case *ast.AutoLink:
-					hasLink = true
-					fmt.Fprintf(w, "=> %s\n", nl.Label(source))
 				}
 			}
 			if hasLink {
@@ -226,41 +210,33 @@ func (r *GemRenderer) renderListItem(w util.BufWriter, source []byte, node ast.N
 // used to test this condition. Link only paragraphs are simply renderered as a
 // list of gemini links.
 func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
-	firstLink := true
-	for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-		switch nl := child.(type) {
-		case *ast.Link:
-			if !firstLink {
-				// Add line breaks between links.
+	if !entering {
+		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+			if linkPrint(w, source, child, r.config.LinkReplacers) {
 				fmt.Fprintf(w, "\n")
 			}
-			text, err := nodeText(source, nl)
-			if err != nil {
-				return ast.WalkStop, nil
-			}
-			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-			firstLink = false
-		case *wast.Wiki:
-			if !firstLink {
-				// Add line breaks between links.
-				fmt.Fprintf(w, "\n")
-			}
-			text, err := nodeText(source, nl)
-			if err != nil {
-				return ast.WalkStop, nil
-			}
-			fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-			firstLink = false
-		case *ast.AutoLink:
-			if !firstLink {
-				// Add line breaks between links.
-				fmt.Fprintf(w, "\n")
-			}
-			fmt.Fprintf(w, "=> %s", nl.Label(source))
-			firstLink = false
+			// switch nl := child.(type) {
+			// case *ast.Link:
+			// 	text, err := nodeText(source, nl)
+			// 	if err != nil {
+			// 		return ast.WalkStop, nil
+			// 	}
+			// 	fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+			// 	fmt.Fprintf(w, "\n")
+			// case *wast.Wiki:
+			// 	text, err := nodeText(source, nl)
+			// 	if err != nil {
+			// 		return ast.WalkStop, nil
+			// 	}
+			// 	fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
+			// 	fmt.Fprintf(w, "\n")
+			// case *ast.AutoLink:
+			// 	fmt.Fprintf(w, "=> %s", nl.Label(source))
+			// 	fmt.Fprintf(w, "\n")
+			// }
 		}
+		fmt.Fprintf(w, "\n")
 	}
-	fmt.Fprintf(w, "\n\n")
 	return ast.WalkContinue, nil
 }
 

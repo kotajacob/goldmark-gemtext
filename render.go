@@ -2,6 +2,8 @@ package gemtext
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 
 	wast "git.sr.ht/~kota/goldmark-wiki/ast"
 	"github.com/yuin/goldmark/ast"
@@ -94,6 +96,65 @@ func linkOnly(source []byte, node ast.Node) bool {
 		return true
 	}
 	return false
+}
+
+// linkPrint is a helper function that prints a link's text to a writer, applies
+// any regex replacers.
+// Returns false if a link was not printed.
+func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplacer) bool {
+	switch n := node.(type) {
+	case *ast.Link:
+		// Apply link replacers.
+		destination := n.Destination
+		for _, r := range replacers {
+			s := r.replace(string(destination), LinkMarkdown)
+			destination = []byte(s)
+		}
+
+		// Get link text.
+		text, err := nodeText(source, n)
+		if err != nil {
+			return false
+		}
+
+		fmt.Fprintf(w, "=> %s %s", destination, text)
+		return true
+	case *wast.Wiki:
+		// Apply link replacers.
+		destination := n.Destination
+		for _, r := range replacers {
+			s := r.replace(string(destination), LinkWiki)
+			destination = []byte(s)
+		}
+
+		// Get link text.
+		text, err := nodeText(source, n)
+		if err != nil {
+			return false
+		}
+
+		fmt.Fprintf(w, "=> %s %s", destination, text)
+		return true
+	case *ast.AutoLink:
+		// Apply link replacers.
+		destination := n.Label(source)
+		for _, r := range replacers {
+			s := r.replace(string(destination), LinkMarkdown)
+			destination = []byte(s)
+		}
+		fmt.Fprintf(w, "=> %s", destination)
+		return true
+	}
+	return false
+}
+
+// replace applies a LinkReplacer if the type matches t. The string returned
+// will be modified if it matched.
+func (r LinkReplacer) replace(s string, t LinkType) string {
+	if t == r.Type {
+		return r.Regex.ReplaceAllString(s, r.Replacement)
+	}
+	return s
 }
 
 // nodeText is a helper function that recursively creates and runs a renderer
