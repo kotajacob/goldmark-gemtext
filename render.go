@@ -19,7 +19,9 @@ func New(opts ...Option) renderer.Renderer {
 		opt.SetConfig(config)
 	}
 	r := renderer.NewRenderer(
-		renderer.WithNodeRenderers(util.Prioritized(NewGemRenderer(config), 1000)),
+		renderer.WithNodeRenderers(
+			util.Prioritized(NewGemRenderer(config), 1000),
+		),
 	)
 	return r
 }
