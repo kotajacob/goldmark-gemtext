@@ -141,7 +141,7 @@ func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplac
 		// Apply link replacers.
 		destination := n.Label(source)
 		for _, r := range replacers {
-			s := r.replace(string(destination), LinkMarkdown)
+			s := r.replace(string(destination), LinkAuto)
 			destination = []byte(s)
 		}
 		fmt.Fprintf(w, "=> %s", destination)
