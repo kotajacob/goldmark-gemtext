@@ -12,9 +12,9 @@
 
 # Heading with a link
 
-=> https://twitter.com Complete link heading
+=> markdownlink://twitter.com Complete link heading
 
-=> https://autolinkheading.com
+=> autolinks://autolinkheading.com
 
 # Multi link heading
 
@@ -114,9 +114,9 @@ console.log(foo(5));
 
 ## Links
 
-=> http://dev.nodeca.com link text
+=> markdownlink://dev.nodeca.com link text
 
-=> http://nodeca.github.io/pica/demo/ link with title
+=> markdownlink://nodeca.github.io/pica/demo/ link with title
 
 Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
 
@@ -142,12 +142,12 @@ Paragraph with a few links in it.
 
 ## Linkparagraphs
 
-=> https://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88
-=> https://computer.rip/2021-03-24-RMS.html
+=> autolinks://selamjie.medium.com/remove-richard-stallman-appendix-a-a7e41e784f88
+=> autolinks://computer.rip/2021-03-24-RMS.html
 
-=> https://github.com/gnembon/fabric-carpet carpet
-=> https://github.com/gnembon/carpet-extra/ carpet-extra
-=> https://github.com/gnembon/carpet-autoCraftingTable carpet-autoCraftingTable
+=> markdownlink://github.com/gnembon/fabric-carpet carpet
+=> markdownlink://github.com/gnembon/carpet-extra/ carpet-extra
+=> markdownlink://github.com/gnembon/carpet-autoCraftingTable carpet-autoCraftingTable
 
 ## Images
 

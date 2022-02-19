@@ -80,9 +80,19 @@ func TestNew(t *testing.T) {
 			"test_data/render.md", "test_data/renderLinkReplacers.gmi",
 			WithLinkReplacers([]LinkReplacer{
 				{
+					LinkMarkdown,
+					regexp.MustCompile(`https?`),
+					"markdownlink",
+				},
+				{
 					LinkWiki,
 					regexp.MustCompile(`nz`),
 					"org",
+				},
+				{
+					LinkAuto,
+					regexp.MustCompile(`https?`),
+					"autolinks",
 				},
 			}),
 		},

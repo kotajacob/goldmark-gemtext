@@ -251,35 +251,20 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 		// Handle links in non-link-only paragraphs.
 		firstLink := true
 		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
+			// We need to print new lines before the links rather than after. So
+			// first we use a type switch to ensure the current node is a link.
+			// Note than nl will be of type interface{}. This is a quirk of
+			// multi-type cases in go type switches.
 			switch nl := child.(type) {
-			case *ast.Link:
-				if firstLink {
-					fmt.Fprintf(w, "\n")
-				}
-				text, err := nodeText(source, nl)
-				if err != nil {
-					return ast.WalkStop, nil
-				}
-				fmt.Fprintf(w, "\n")
-				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-				firstLink = false
-			case *wast.Wiki:
-				if firstLink {
-					fmt.Fprintf(w, "\n")
-				}
-				text, err := nodeText(source, nl)
-				if err != nil {
-					return ast.WalkStop, nil
-				}
-				fmt.Fprintf(w, "\n")
-				fmt.Fprintf(w, "=> %s %s", nl.Destination, text)
-				firstLink = false
-			case *ast.AutoLink:
+			case *ast.Link, *wast.Wiki, *ast.AutoLink:
 				if firstLink {
 					fmt.Fprintf(w, "\n\n")
+				} else {
+					fmt.Fprintf(w, "\n")
 				}
-				fmt.Fprintf(w, "=> %s", nl.Label(source))
-				firstLink = false
+				if linkPrint(w, source, nl, r.config.LinkReplacers) {
+					firstLink = false
+				}
 			}
 		}
 		fmt.Fprintf(w, "\n\n")
