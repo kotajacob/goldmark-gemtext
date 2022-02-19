@@ -104,6 +104,11 @@ func linkOnly(source []byte, node ast.Node) bool {
 // any regex replacers.
 // Returns false if a link was not printed.
 func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplacer) bool {
+	// I know the logic is nearly duplicated in *ast.Link and *wast.Wiki, but I
+	// don't know of a good way to consolidate this. You _can_ match multiple
+	// types in a type switch, but instead of n being the correct type it will
+	// be assigned interface{}. So you would need to do additional type
+	// assertions and that seems worse than a little duplication.
 	switch n := node.(type) {
 	case *ast.Link:
 		// Apply link replacers.
