@@ -120,13 +120,13 @@ console.log(foo(5));
 
 Autoconverted link https://github.com/nodeca/pica in the middle of a paragraph.
 
-=> https://github.com/nodeca/pica
+=> autolinks://github.com/nodeca/pica
 
 Fabric has an amazing community of dedicated and brilliant modders who actively embrace and support open source. Many of the other modding platforms of the past were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities. This is the primary reason I switched to fabric, but it also just so happens to have the fastest and fanciest server mods around.
 
-=> https://www.modrinth.com/user/modmuss50 dedicated
-=> https://jellysquid.me/projects/ brilliant
-=> https://web.archive.org/web/20201125032822/ were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities.
+=> markdownlink://www.modrinth.com/user/modmuss50 dedicated
+=> markdownlink://jellysquid.me/projects/ brilliant
+=> markdownlink://web.archive.org/web/20201125032822/ were "ruled with an iron fist" and generally had all the worst parts you see in other gaming communities.
 
 ## Wiki link tests
 
