@@ -101,7 +101,8 @@ func linkOnly(source []byte, node ast.Node) bool {
 }
 
 // linkPrint is a helper function that prints a link's text to a writer, applies
-// any regex replacers.
+// any regex replacers. Images are not handled by this function as they operate
+// slightly differently.
 // Returns false if a link was not printed.
 func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplacer) bool {
 	// I know the logic is nearly duplicated in *ast.Link and *wast.Wiki, but I

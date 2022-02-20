@@ -94,6 +94,11 @@ func TestNew(t *testing.T) {
 					regexp.MustCompile(`https?`),
 					"autolinks",
 				},
+				{
+					LinkImage,
+					regexp.MustCompile(`https?`),
+					"image",
+				},
 			}),
 		},
 	}

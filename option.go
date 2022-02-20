@@ -212,6 +212,8 @@ const (
 	// goldmark extension to detect this type of link:
 	// https://git.sr.ht/~kota/goldmark-wiki
 	LinkWiki
+	// LinkImage is a markdown image link.
+	LinkImage
 )
 
 // Set LinkReplacers.

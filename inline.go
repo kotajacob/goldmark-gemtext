@@ -64,8 +64,15 @@ func (r *GemRenderer) renderEmphasis(w util.BufWriter, source []byte, node ast.N
 func (r *GemRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	n := node.(*ast.Image)
 	if entering {
+		// Apply link replacers.
+		destination := n.Destination
+		for _, r := range r.config.LinkReplacers {
+			s := r.replace(string(destination), LinkImage)
+			destination = []byte(s)
+		}
+
 		fmt.Fprintf(w, "=> ")
-		fmt.Fprintf(w, "%s ", n.Destination)
+		fmt.Fprintf(w, "%s ", destination)
 	} else {
 		if n.NextSibling() != nil && n.FirstChild() != nil {
 			fmt.Fprintf(w, "\n")

@@ -151,16 +151,16 @@ Paragraph with a few links in it.
 
 ## Images
 
-=> https://octodex.github.com/images/minion.png Minion
-=> https://octodex.github.com/images/stormtroopocat.jpg Stormtroopocat
+=> image://octodex.github.com/images/minion.png Minion
+=> image://octodex.github.com/images/stormtroopocat.jpg Stormtroopocat
 
-=> https://octodex.github.com/images/minion.png 1
-=> https://octodex.github.com/images/stormtroopocat.jpg 2
-=> https://octodex.github.com/images/minion.png 3
+=> image://octodex.github.com/images/minion.png 1
+=> image://octodex.github.com/images/stormtroopocat.jpg 2
+=> image://octodex.github.com/images/minion.png 3
 
 Like links, Images also have a footnote style syntax
 
-=> https://octodex.github.com/images/dojocat.jpg Alt text
+=> image://octodex.github.com/images/dojocat.jpg Alt text
 
 With a reference later in the document defining the URL location:
 
