@@ -102,9 +102,12 @@ func linkOnly(source []byte, node ast.Node) bool {
 
 // linkPrint is a helper function that prints a link's text to a writer, applies
 // any regex replacers. Images are not handled by this function as they operate
-// slightly differently.
+// slightly differently. Format can be used to format the link text.
 // Returns false if a link was not printed.
-func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplacer) bool {
+func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplacer, format string) bool {
+	if format == "" {
+		format = "%s"
+	}
 	// I know the logic is nearly duplicated in *ast.Link and *wast.Wiki, but I
 	// don't know of a good way to consolidate this. You _can_ match multiple
 	// types in a type switch, but instead of n being the correct type it will
@@ -124,8 +127,7 @@ func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplac
 		if err != nil {
 			return false
 		}
-
-		fmt.Fprintf(w, "=> %s %s", destination, text)
+		fmt.Fprintf(w, "=> %s %s", destination, fmt.Sprintf(format, text))
 		return true
 	case *wast.Wiki:
 		// Apply link replacers.
@@ -141,7 +143,7 @@ func linkPrint(w io.Writer, source []byte, node ast.Node, replacers []LinkReplac
 			return false
 		}
 
-		fmt.Fprintf(w, "=> %s %s", destination, text)
+		fmt.Fprintf(w, "=> %s %s", destination, fmt.Sprintf(format, text))
 		return true
 	case *ast.AutoLink:
 		// Apply link replacers.

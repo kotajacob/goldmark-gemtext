@@ -45,6 +45,11 @@ func TestNew(t *testing.T) {
 			WithParagraphLink(ParagraphLinkOff),
 		},
 		{
+			"test_data/render.md", "test_data/renderParagraphLinkCurlyBelow.gmi",
+			WithParagraphLink(ParagraphLinkCurlyBelow),
+		},
+
+		{
 			"test_data/render.md", "test_data/renderHeadLinkOff.gmi",
 			WithHeadingLink(HeadingLinkOff),
 		},

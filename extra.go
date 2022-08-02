@@ -38,5 +38,16 @@ func (r *GemRenderer) renderWiki(w util.BufWriter, source []byte, node ast.Node,
 	if linkOnly(source, node.Parent()) {
 		return ast.WalkSkipChildren, nil
 	}
+	curly := r.config.ParagraphLink == ParagraphLinkCurlyBelow
+	if entering {
+		if curly {
+			fmt.Fprint(w, "{")
+		}
+	} else {
+		if curly {
+			fmt.Fprint(w, "}")
+		}
+	}
+
 	return ast.WalkContinue, nil
 }

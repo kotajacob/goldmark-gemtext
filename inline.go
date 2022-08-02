@@ -82,10 +82,20 @@ func (r *GemRenderer) renderImage(w util.BufWriter, source []byte, node ast.Node
 }
 
 func (r *GemRenderer) renderLink(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
-	// skip if the parent node contains only links
 	if linkOnly(source, node.Parent()) {
 		return ast.WalkSkipChildren, nil
 	}
+	curly := r.config.ParagraphLink == ParagraphLinkCurlyBelow && node.Parent().Kind() != ast.KindHeading
+	if entering {
+		if curly {
+			fmt.Fprint(w, "{")
+		}
+	} else {
+		if curly {
+			fmt.Fprint(w, "}")
+		}
+	}
+
 	return ast.WalkContinue, nil
 }
 

@@ -109,6 +109,8 @@ const (
 	ParagraphLinkOff ParagraphLink = iota
 	// Print links below paragraph.
 	ParagraphLinkBelow
+	// Delimit link text with curly braces and print the below the paragraph.
+	ParagraphLinkCurlyBelow
 )
 
 // Set Emphasis mode.

@@ -22,7 +22,7 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			if linkOnly(source, n) {
 				// In Auto mode, link only headings prints their first link then exit.
 				for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-					if linkPrint(w, source, child, r.config.LinkReplacers) {
+					if linkPrint(w, source, child, r.config.LinkReplacers, "") {
 						return ast.WalkSkipChildren, nil
 					}
 				}
@@ -56,6 +56,7 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			}
 		}
 	} else {
+
 		if r.config.HeadingSpace == HeadingSpaceSingle {
 			fmt.Fprintf(w, "\n")
 		} else {
@@ -65,7 +66,7 @@ func (r *GemRenderer) renderHeading(w util.BufWriter, source []byte, node ast.No
 			// Print all links that were in the heading below the heading.
 			var hasLink bool
 			for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-				if linkPrint(w, source, child, r.config.LinkReplacers) {
+				if linkPrint(w, source, child, r.config.LinkReplacers, "") {
 					fmt.Fprint(w, "\n")
 					hasLink = true
 				}
@@ -212,7 +213,7 @@ func (r *GemRenderer) renderListItem(w util.BufWriter, source []byte, node ast.N
 func (r *GemRenderer) renderParagraphLinkOnly(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		for child := n.FirstChild(); child != nil; child = child.NextSibling() {
-			if linkPrint(w, source, child, r.config.LinkReplacers) {
+			if linkPrint(w, source, child, r.config.LinkReplacers, "") {
 				fmt.Fprintf(w, "\n")
 			}
 		}
@@ -242,6 +243,13 @@ func (r *GemRenderer) renderParagraphLinkOff(w util.BufWriter, source []byte, n 
 // it is printed as a link or list of links itself.
 func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, n *ast.Paragraph, entering bool) (ast.WalkStatus, error) {
 	if !entering {
+		var format string
+		if r.config.ParagraphLink == ParagraphLinkCurlyBelow {
+			format = "{%s}"
+		} else {
+			format = ""
+		}
+
 		// We can make this check inside !entering, because link only
 		// paragraphs do not contain text. It's a weird quick of goldmark and
 		// this is the work-around.
@@ -262,7 +270,7 @@ func (r *GemRenderer) renderParagraphLinkBelow(w util.BufWriter, source []byte, 
 				} else {
 					fmt.Fprintf(w, "\n")
 				}
-				if linkPrint(w, source, nl, r.config.LinkReplacers) {
+				if linkPrint(w, source, nl, r.config.LinkReplacers, format) {
 					firstLink = false
 				}
 			}
@@ -276,11 +284,9 @@ func (r *GemRenderer) renderParagraph(w util.BufWriter, source []byte, node ast.
 	n := node.(*ast.Paragraph)
 	switch r.config.ParagraphLink {
 	case ParagraphLinkOff:
-		status, err := r.renderParagraphLinkOff(w, source, n, entering)
-		return status, err
+		return r.renderParagraphLinkOff(w, source, n, entering)
 	default:
-		status, err := r.renderParagraphLinkBelow(w, source, n, entering)
-		return status, err
+		return r.renderParagraphLinkBelow(w, source, n, entering)
 	}
 }
 
